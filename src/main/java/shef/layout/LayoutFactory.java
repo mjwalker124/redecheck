@@ -7,10 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * Created by thomaswalsh on 16/05/2016.
@@ -48,11 +45,13 @@ public class LayoutFactory {
         xpaths = new HashMap<>();
         elements = new HashMap<>();
         Rectangle r1 = null, r2 = null, r3 = null;
+        //System.out.println(dom);
         try {
             JSONArray arrDom = new JSONArray(dom.trim());
             int numElements = 0;
             for (int i = 0; i < arrDom.length(); i++) {
                 JSONObject nodeData = arrDom.getJSONObject(i);
+                //System.out.println(nodeData.toString());
                 Element e = getElementFromDomData(nodeData);
                 if (e != null) {
                     try {
@@ -121,21 +120,23 @@ public class LayoutFactory {
         }
     }
 
+
     public Element getElementFromDomData(JSONObject obj) throws JSONException {
         int[] coords = getCoords(obj, true);
         if (!Arrays.equals(new int[]{0,0,0,0}, coords)) {
             try {
                 String xpath = obj.getString("xpath");
+                String tag = obj.getString("tag");
                 int width = coords[2] - coords[0];
                 int height = coords[3] - coords[1];
                 if (!(((width < 1) || (height < 1)) && (obj.getInt("overflow") == 0))) {
                     if (obj.getInt("visible") == 1) {
                         if (height >=5 && width >= 5) {
                             if (!ArrayUtils.contains(tagsIgnore, parseTagName(xpath).toUpperCase())) {
-
                                 if (!childOfNoSizeElement(xpath)) {
                                     try {
-                                        Element e = new Element(obj.getString("xpath"), coords[0], coords[1], coords[2], coords[3]);
+                                        //System.out.println(obj.toString());
+                                        Element e = new Element(obj.getString("xpath"), obj.getString("tag"), obj, coords[0], coords[1], coords[2], coords[3]);
                                         return e;
                                     } catch (JSONException e) {
                                         System.out.println("Error while layout the XPath of " + obj.toString());
@@ -196,6 +197,7 @@ public class LayoutFactory {
         }
         return null;
     }
+
 
     public HashMap<String, String> getStyles(JSONObject object) throws JSONException {
         HashMap<String, String> styles = new HashMap<>();

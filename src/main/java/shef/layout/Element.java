@@ -1,14 +1,20 @@
 package shef.layout;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * Created by thomaswalsh on 13/05/2016.
  */
 public class Element {
     String xpath;
+    String tag;
+    JSONObject obj;
     int x1, x2, y1, y2;
 
     int[] boundingCoords;
@@ -32,7 +38,8 @@ public class Element {
     public String getXpath() {
         return xpath;
     }
-
+    public String getTag() { return tag; }
+    public JSONObject getObj() {return obj;}
     public int[] getBoundingCoordinates() {
         return new int[] {x1, y1, x2, y2};
     }
@@ -49,6 +56,42 @@ public class Element {
         this.y2 = y2;
         boundingCoords = new int[] {x1,y1,x2,y2};
         this.boundingRectangle = new Rectangle(x1, y1, x2-x1, y2 - y1);
+    }
+
+    public Element(String x, String y, JSONObject obj, int x1, int y1, int x2, int y2) {
+        this.xpath = x;
+        this.tag = y;
+        this.obj = obj;
+        this.x1 = x1;
+        this.x2 = x2;
+        this.y1 = y1;
+        this.y2 = y2;
+        boundingCoords = new int[] {x1,y1,x2,y2};
+        this.boundingRectangle = new Rectangle(x1, y1, x2-x1, y2 - y1);
+    }
+
+    public boolean hasAttribute(String attr) {
+        try {
+            System.out.println(obj);
+            String data = obj.getString(attr);
+
+            return (data != null && !Objects.equals(data, "") && !Objects.equals(data, "null"));
+        } catch (Exception e) {
+            System.out.println("Error while checking for "+attr+" attribute");
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public String getAttr(String attr) {
+        try {
+            return obj.getString(attr);
+        } catch (JSONException e) {
+            System.out.println("Error while getting "+attr+" attribute");
+            e.printStackTrace();
+        }
+
+        return "error";
     }
 
     public void setParent(Element p) {

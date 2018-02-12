@@ -202,6 +202,9 @@ function getXPath(node){
     return path;
 }
 
+function getTag(node) {
+	return node.tagName;
+}
 /**
  * Helper function for getXPath
  */
@@ -330,6 +333,13 @@ function getZIndex(node){
 	return zIndexVal;
 }
 
+function getAlt(node) {
+	if (node.getAttribute('alt') == 'null') {
+		return '';
+	}
+	return "'" + node.getAttribute('alt') + "'";
+}
+
 /**
  * Checker function while populating JSON object
  * @param key
@@ -448,7 +458,9 @@ while(nodes.length > 0){
 			  c('xpath', n, getXPath, true),
 			  c('visible', n, isVisible),
 			  c('overflow', n, getOverflow),
-			  c('coord', n, getDOMCoords)
+			  c('coord', n, getDOMCoords),
+			  c('alt', n, getAlt),
+			  c('tag', n, getTag)
 			  // ,
 			  // c('styles', n, getAllStyles)
 		  ];

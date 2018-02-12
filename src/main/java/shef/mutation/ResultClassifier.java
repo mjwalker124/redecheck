@@ -167,10 +167,10 @@ public class ResultClassifier {
                 DomNode pair = coordsDiff.get(dn);
                 int[] coords1 = dn.getCoords();
                 int[] coords2 = pair.getCoords();
-                System.out.println(dn.getxPath());
-                System.out.println(coords1[0] + ","+coords1[1] + ","+coords1[2] + ","+coords1[3]);
-                System.out.println(coords2[0] + ","+coords2[1] + ","+coords2[2] + ","+coords2[3]);
-                System.out.println();
+                //System.out.println(dn.getxPath());
+                //System.out.println(coords1[0] + ","+coords1[1] + ","+coords1[2] + ","+coords1[3]);
+                //System.out.println(coords2[0] + ","+coords2[1] + ","+coords2[2] + ","+coords2[3]);
+                //System.out.println();
             }
 //			for (DomNode n : nonMatching) {
 //				System.out.println(n.getxPath() + " was not matched");

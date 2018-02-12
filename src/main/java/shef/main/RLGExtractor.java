@@ -5,8 +5,11 @@ package shef.main;
 import cz.vutbr.web.css.*;
 import edu.gatech.xpert.dom.DomNode;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.Point;
+import shef.accessibility.AccessibilityAnalyser;
+import shef.accessibility.IAccessibilityIssue;
 import shef.analysis.RLGAnalyser;
 import shef.mutation.CSSMutator;
 import shef.layout.LayoutFactory;
@@ -14,7 +17,7 @@ import shef.reporting.inconsistencies.ResponsiveLayoutFailure;
 import shef.rlg.ResponsiveLayoutGraph;
 import shef.utils.BrowserFactory;
 import shef.utils.StopwatchFactory;
-
+import java.nio.charset.Charset;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -28,6 +31,9 @@ import java.util.*;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 
 /**
  * Created by thomaswalsh on 15/02/2016.
@@ -53,17 +59,19 @@ public class RLGExtractor {
     StopwatchFactory swf;
     private ArrayList<Integer> breakpoints;
     private String ts;
+    private String jsCommands;
     final int[] SPOT_CHECK_WIDTHS = new int[] {480, 600, 640, 768, 1024, 1280};
     HashMap<String, int[]> spotCheckWidths;
     int[] allWidths;
 
 
 
-    public RLGExtractor(String current, String fullUrl, String shortUrl, HashMap<Integer, DomNode> doms, String b, String st, boolean bs, int start, int end, int ss, String preamble, int sleep, String timeStamp, boolean baselines)  throws IOException{
+    public RLGExtractor(String current, String jsCommands, String fullUrl, String shortUrl, HashMap<Integer, DomNode> doms, String b, String st, boolean bs, int start, int end, int ss, String preamble, int sleep, String timeStamp, boolean baselines)  throws IOException{
         this.current = current;
         this.fullUrl = fullUrl;
         this.shortUrl = shortUrl;
         this.doms = doms;
+        this.jsCommands = jsCommands;
         this.lFactories = new HashMap<>();
         this.browser = b;
         this.sampleTechnique = st;
@@ -103,10 +111,33 @@ public class RLGExtractor {
             // Load up the webpage in the browser, using a pop-up to make sure we can resize down to 320 pixels wide
             String winHandleBefore = webDriver.getWindowHandle();
             webDriver.get(fullUrl);
+            String externalJS = "";
+            if (!jsCommands.equals("")) {
+                externalJS = StringEscapeUtils.escapeJava(new String(Files.readAllBytes(Paths.get(jsCommands))));
+                System.out.println(externalJS);
+                //webDriver.get(fullUrl);
+                //((JavascriptExecutor) webDriver).executeScript(externalJS);
+            }
+
             ((JavascriptExecutor) webDriver).executeScript("var newwindow=window.open(\"" + fullUrl + "\",'test','width=320,height=1024,top=50,left=50', scrollbars='no', menubar='no', resizable='no', toolbar='no', top='+top+', left='+left+', 'false');\n" +
-                    "newwindow.focus();");
+                    "newwindow.focus();" +
+                    "newwindow.onload = function() {" +
+                    "var script = document.createElement('script');" +
+                    "try {" +
+                    "script.appendChild(document.createTextNode('"+externalJS+"'));" +
+                    "} catch (e) {" +
+                    "script.text = '"+externalJS+"';" +
+                    "" +
+                    "}" +
+                    "this.document.head.appendChild(script);" +
+                    "}; ");
+
+
+
             for(String winHandle : webDriver.getWindowHandles()){
+                System.out.println(winHandle);
                 webDriver.switchTo().window(winHandle);
+
                 if (winHandle.equals(winHandleBefore)) {
                     webDriver.close();
                 }
@@ -135,7 +166,9 @@ public class RLGExtractor {
 
             // Use the extracted RLG to find any layout inconsistencies the developer/tester should know about
             RLGAnalyser analyser = new RLGAnalyser(this.getRlg(), webDriver, fullUrl, breakpoints, lFactories, startW, endW);
+            AccessibilityAnalyser accessibilityAnalyser = new AccessibilityAnalyser(this.getRlg(), webDriver, fullUrl, breakpoints, lFactories, startW, endW);
             ArrayList<ResponsiveLayoutFailure> errors = analyser.analyse();
+            List<IAccessibilityIssue> accessibilityIssues = accessibilityAnalyser.analyse();
             this.swf.getDetect().stop();
 
             this.swf.getReport().start();
@@ -149,7 +182,7 @@ public class RLGExtractor {
 
             // Write the text report to disk
             analyser.writeReport(shortUrl, errors, ts);
-
+            accessibilityAnalyser.writeReport(shortUrl, accessibilityIssues, ts);
             // Stop the timer for the report generation
             this.swf.getReport().stop();
 

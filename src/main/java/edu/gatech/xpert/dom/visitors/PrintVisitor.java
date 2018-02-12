@@ -10,7 +10,7 @@ public class PrintVisitor extends DomVisitor {
 	@Override
 	public void visit(DomNode node) {
 		String pad = StringUtils.repeat(" ", level);
-		System.out.println(pad + "-" + node);
+		//System.out.println(pad + "-" + node);
 		level++;
 	}
 	

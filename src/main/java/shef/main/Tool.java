@@ -33,6 +33,7 @@ public class Tool {
     public static String oracle;
     public static String test;
     public String url;
+    public String instructionUrl;
     String[] clArgs;
     public String current;
     public static String preamble;
@@ -117,6 +118,7 @@ public class Tool {
         timing = clp.timing;
         timingID = clp.timingID;
         url = clp.url;
+        instructionUrl = clp.instructionFile;
         widthsToCheck = new int[]{};
 
         oracleDoms = new HashMap<Integer, DomNode>();
@@ -133,7 +135,7 @@ public class Tool {
         // Setup for new version of tool
         layoutFactories = new HashMap<>();
         if (!results && !fix) {
-            runFaultDetector(current, url, browser, sampleTechnique, binarySearch, startWidth, finalWidth, stepSize, baselines);
+            runFaultDetector(current, url, instructionUrl, browser, sampleTechnique, binarySearch, startWidth, finalWidth, stepSize, baselines);
         }
 
         if (fix) {
@@ -165,7 +167,7 @@ public class Tool {
         }
     }
 
-    public static void runFaultDetector(String current, String url, String browser, String sampleTechnique, boolean binarySearch, int startWidth, int finalWidth, int stepSize, boolean baselines) {
+    public static void runFaultDetector(String current, String url, String instructionPath, String browser, String sampleTechnique, boolean binarySearch, int startWidth, int finalWidth, int stepSize, boolean baselines) {
         try {
             Date date = new Date();
             Format formatter = new SimpleDateFormat("YYYY-MM-dd_hh-mm-ss");
@@ -178,7 +180,8 @@ public class Tool {
                 fullUrl = url;
             }
             System.out.println(fullUrl);
-            RLGExtractor extractor = new RLGExtractor(current, fullUrl, url, oracleDoms, browser, sampleTechnique, binarySearch, startWidth, finalWidth, stepSize, preamble, sleep, timeStamp, baselines);
+            //System.out.println("I've modified the code");
+            RLGExtractor extractor = new RLGExtractor(current, instructionPath, fullUrl, url, oracleDoms, browser, sampleTechnique, binarySearch, startWidth, finalWidth, stepSize, preamble, sleep, timeStamp, baselines);
 //            Thread t = new Thread(thread);
 //            t.start();
 //            while(t.isAlive()){}
@@ -216,8 +219,8 @@ public class Tool {
         String timeStamp = formatter.format(date);
         String oracleUrl = preamble + oracle + ".html";
         String testUrl = preamble + test + ".html";
-        RLGExtractor rlg1 = new RLGExtractor(current, oracleUrl, test, oracleDoms, browser, sampleTechnique, binarySearch, startWidth, finalWidth, stepSize, preamble, sleep, timeStamp, baselines);
-        RLGExtractor rlg2 = new RLGExtractor(current, testUrl, test, testDoms, browser, sampleTechnique, binarySearch, startWidth, finalWidth, stepSize, preamble, sleep, timeStamp, baselines);
+        RLGExtractor rlg1 = new RLGExtractor(current, "", oracleUrl, test, oracleDoms, browser, sampleTechnique, binarySearch, startWidth, finalWidth, stepSize, preamble, sleep, timeStamp, baselines);
+        RLGExtractor rlg2 = new RLGExtractor(current, "", testUrl, test, testDoms, browser, sampleTechnique, binarySearch, startWidth, finalWidth, stepSize, preamble, sleep, timeStamp, baselines);
 //        Thread t1 = new Thread(rlg1);
 //        Thread t2 = new Thread(rlg2);
 
@@ -333,7 +336,10 @@ public class Tool {
                 while (!consecutiveMatches) {
                     // Extract the DOM and save it to the HashMap.
 //                    wdriver.manage().timeouts().implicitlyWait(sleep, TimeUnit.MILLISECONDS);
+                    //System.out.println(scriptToExtract);
                     String extractedDom = extractDOM(wdriver, scriptToExtract);
+                    //System.out.println(extractedDom);
+
                     if (previous.equals(extractedDom)) {
 
                         lFactories.put(w, new LayoutFactory(extractedDom));

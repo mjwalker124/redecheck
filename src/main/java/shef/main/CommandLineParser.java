@@ -66,6 +66,9 @@ public class CommandLineParser {
     @Parameter(names = "--url", description = "The URL to check for faults.")
     public String url;
 
+    @Parameter(names = "--instructions", description = "A text file of selenium instructions to be run on the site")
+    public String instructionFile;
+
     @Parameter(names = "--fix", description = "Triggers the fault fixing function")
     public boolean fix;
 

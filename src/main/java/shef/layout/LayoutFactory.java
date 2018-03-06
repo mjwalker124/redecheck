@@ -14,9 +14,11 @@ import java.util.*;
  */
 public class LayoutFactory {
     String dom;
+    private String src;
     public Layout layout;
     private RTree rtree;
     HashMap<Integer, Rectangle> rectangles;
+    HashMap<Integer, Integer> codePositions;
     HashMap<Integer, String> xpaths;
     HashMap<String, Element> elements;
     int bodyID;
@@ -33,6 +35,15 @@ public class LayoutFactory {
 
     public LayoutFactory(String dom) {
         this.dom = dom;
+        //System.out.println(dom);
+        buildRTree(dom);
+        resizeBodyElement();
+        layout = new Layout(rtree, rectangles, xpaths, elements);
+    }
+    public LayoutFactory(String dom, String src) {
+        this.dom = dom;
+        this.src = src;
+        //System.out.println(dom);
         buildRTree(dom);
         resizeBodyElement();
         layout = new Layout(rtree, rectangles, xpaths, elements);
@@ -44,6 +55,7 @@ public class LayoutFactory {
         rectangles = new HashMap<>();
         xpaths = new HashMap<>();
         elements = new HashMap<>();
+        codePositions = new HashMap<>();
         Rectangle r1 = null, r2 = null, r3 = null;
         //System.out.println(dom);
         try {
@@ -51,7 +63,6 @@ public class LayoutFactory {
             int numElements = 0;
             for (int i = 0; i < arrDom.length(); i++) {
                 JSONObject nodeData = arrDom.getJSONObject(i);
-                //System.out.println(nodeData.toString());
                 Element e = getElementFromDomData(nodeData);
                 if (e != null) {
                     try {
@@ -125,8 +136,10 @@ public class LayoutFactory {
         int[] coords = getCoords(obj, true);
         if (!Arrays.equals(new int[]{0,0,0,0}, coords)) {
             try {
+                //System.out.println(obj.getString("xpath") + " : " + obj.getInt("position_in_code"));
                 String xpath = obj.getString("xpath");
                 String tag = obj.getString("tag");
+                //System.out.println(obj.getString("codeposition"));
                 int width = coords[2] - coords[0];
                 int height = coords[3] - coords[1];
                 if (!(((width < 1) || (height < 1)) && (obj.getInt("overflow") == 0))) {
@@ -136,7 +149,7 @@ public class LayoutFactory {
                                 if (!childOfNoSizeElement(xpath)) {
                                     try {
                                         //System.out.println(obj.toString());
-                                        Element e = new Element(obj.getString("xpath"), obj.getString("tag"), obj, coords[0], coords[1], coords[2], coords[3]);
+                                        Element e = new Element(obj.getString("xpath"), obj.getInt("position_in_code"), obj.getInt("document_height"), obj.getInt("document_lines"), obj.getString("tag"), obj, coords[0], coords[1], coords[2], coords[3]);
                                         return e;
                                     } catch (JSONException e) {
                                         System.out.println("Error while layout the XPath of " + obj.toString());

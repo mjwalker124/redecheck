@@ -61,7 +61,7 @@ public class AccessibilityAnalyser {
                         String elementKey = elementEntry.getKey();
                         Element element = elementEntry.getValue();
 
-                        issues.get(i).checkIssue(element);
+                        issues.get(i).checkIssue(element, elements, key);
                         issues.get(i).incNumberOfTimesTested();
                     }
                 }
@@ -71,6 +71,10 @@ public class AccessibilityAnalyser {
         }
 
         return issues;
+    }
+    private int getNumberFromKey(String key, int i) {
+        String[] splits = key.split(":");
+        return Integer.valueOf(splits[i]);
     }
 
     public void writeReport(String url, List<IAccessibilityIssue> issues, String ts) {
@@ -137,6 +141,7 @@ public class AccessibilityAnalyser {
     private List<IAccessibilityIssue> getAccessibilityIssues() {
         List<IAccessibilityIssue> issues = new ArrayList<>();
         issues.add(new ImageHasAltTag());
+        issues.add(new VisualLayoutMatchesSource());
         return issues;
     }
 

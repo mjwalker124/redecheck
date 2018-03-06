@@ -600,6 +600,7 @@ public class RLGAnalyser {
                                             // Check the element is now below the rest of the row
                                             if (elementNowBelowRow(notInRow, nonWrappedRow, grouped.get(key))) {
                                                 // If so, report the wrapping failure
+                                                System.out.println(getNumberFromKey(key, 1));
                                                 WrappingFailure we = new WrappingFailure(notInRow, nonWrappedRow, getNumberFromKey(key, 0), getNumberFromKey(key, 1));
                                                 errors.add(we);
                                             }

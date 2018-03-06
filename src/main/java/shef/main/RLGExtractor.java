@@ -2,6 +2,12 @@ package shef.main;
 
 
 
+import com.google.api.client.http.FileContent;
+import com.google.api.services.sheets.v4.Sheets;
+import com.google.api.services.sheets.v4.model.Sheet;
+import com.google.api.services.sheets.v4.model.Spreadsheet;
+import com.google.api.services.sheets.v4.model.SpreadsheetProperties;
+import com.google.api.services.drive.*;
 import cz.vutbr.web.css.*;
 import edu.gatech.xpert.dom.DomNode;
 import org.apache.commons.io.FileUtils;
@@ -11,6 +17,7 @@ import org.openqa.selenium.Point;
 import shef.accessibility.AccessibilityAnalyser;
 import shef.accessibility.IAccessibilityIssue;
 import shef.analysis.RLGAnalyser;
+import shef.handlers.CloudReporting;
 import shef.mutation.CSSMutator;
 import shef.layout.LayoutFactory;
 import shef.reporting.inconsistencies.ResponsiveLayoutFailure;
@@ -114,7 +121,7 @@ public class RLGExtractor {
             String externalJS = "";
             if (!jsCommands.equals("")) {
                 externalJS = StringEscapeUtils.escapeJava(new String(Files.readAllBytes(Paths.get(jsCommands))));
-                System.out.println(externalJS);
+                System.out.println(externalJS.split("\r\n|\r|\n").length - 2);
                 //webDriver.get(fullUrl);
                 //((JavascriptExecutor) webDriver).executeScript(externalJS);
             }
@@ -132,7 +139,7 @@ public class RLGExtractor {
                     "this.document.head.appendChild(script);" +
                     "}; ");
 
-
+            //System.out.println(webDriver.getPageSource());
 
             for(String winHandle : webDriver.getWindowHandles()){
                 System.out.println(winHandle);
@@ -173,6 +180,7 @@ public class RLGExtractor {
 
             this.swf.getReport().start();
 
+
 //          For each detected RLF, capture a screenshot for the report
             if (errors.size() > 0) {
                 for (ResponsiveLayoutFailure error : errors) {
@@ -180,9 +188,73 @@ public class RLGExtractor {
                 }
             }
 
-            // Write the text report to disk
+            //          For each detected accessibility issue, capture a screenshot for the report
             analyser.writeReport(shortUrl, errors, ts);
             accessibilityAnalyser.writeReport(shortUrl, accessibilityIssues, ts);
+
+            List<Sheet> sheetReports = new ArrayList<>();
+            if (accessibilityIssues.size() > 0) {
+                for (IAccessibilityIssue issue : accessibilityIssues) {
+                    issue.captureScreenshotExample(errors.indexOf(issue)+1, shortUrl, webDriver, fullUrl, ts);
+                    if (!issue.cloudReportMade()) {
+                        sheetReports.add(issue.generateCloudReport());
+                    }
+                }
+            }
+
+
+
+            Sheets sheetsService = CloudReporting.getSheetsService();
+            Drive driveService = CloudReporting.getDriveService();
+            Spreadsheet sheet = new Spreadsheet();
+            SpreadsheetProperties properties = new SpreadsheetProperties();
+            properties.setTitle( "Accessibility Report" );
+            sheet.setProperties(properties);
+            sheet.setSheets(sheetReports);
+
+            Spreadsheet response = sheetsService.spreadsheets().create(sheet)
+                    .execute();
+
+
+            com.google.api.services.drive.model.File fileMetadata = new com.google.api.services.drive.model.File();
+            fileMetadata.setName(shortUrl + " - " + ts);
+            fileMetadata.setMimeType("application/vnd.google-apps.folder");
+
+            com.google.api.services.drive.model.File folderStore = driveService.files().create(fileMetadata)
+                    .setFields("id")
+                    .execute();
+
+            com.google.api.services.drive.model.File imageStoreMetadata = new com.google.api.services.drive.model.File();
+            imageStoreMetadata.setName("images");
+            imageStoreMetadata.setMimeType("application/vnd.google-apps.folder");
+            imageStoreMetadata.setParents(Arrays.asList(folderStore.getId()));
+            com.google.api.services.drive.model.File imageStore = driveService.files().create(imageStoreMetadata)
+                    .setFields("id")
+                    .execute();
+
+
+
+            com.google.api.services.drive.model.File file = driveService.files().get(response.getSpreadsheetId())
+                    .setFields("parents")
+                    .execute();
+            StringBuilder previousParents = new StringBuilder();
+            for (String parent : file.getParents()) {
+                previousParents.append(parent);
+                previousParents.append(',');
+            }
+
+            file = driveService.files().update(response.getSpreadsheetId(), null)
+                    .setAddParents(folderStore.getId())
+                    .setRemoveParents(previousParents.toString())
+                    .setFields("id, parents")
+                    .execute();
+
+
+
+            //Image upload
+
+            // Write the text report to disk
+
             // Stop the timer for the report generation
             this.swf.getReport().stop();
 

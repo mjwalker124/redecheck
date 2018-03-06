@@ -14,11 +14,25 @@ import java.util.Objects;
 public class Element {
     String xpath;
     String tag;
+    Integer lineNumber;
     JSONObject obj;
+    private Integer parentWidth;
+
+    public void setParentWidth(int width) {
+        parentWidth = width;
+    }
+
+    public Integer getParentWidth() {
+        return parentWidth;
+    }
+
     int x1, x2, y1, y2;
 
     int[] boundingCoords;
 
+    public Integer getLineNumber() {
+        return lineNumber;
+    }
 
     public int[] getContentCoords() {
         return contentCoords;
@@ -58,7 +72,8 @@ public class Element {
         this.boundingRectangle = new Rectangle(x1, y1, x2-x1, y2 - y1);
     }
 
-    public Element(String x, String y, JSONObject obj, int x1, int y1, int x2, int y2) {
+    public Element(String x, Integer lineNumber, Integer documentHeight, Integer documentLines, String y, JSONObject obj, int x1, int y1, int x2, int y2) {
+        this.lineNumber = lineNumber;
         this.xpath = x;
         this.tag = y;
         this.obj = obj;
@@ -66,6 +81,8 @@ public class Element {
         this.x2 = x2;
         this.y1 = y1;
         this.y2 = y2;
+        this.documentLines = documentLines;
+        this.documentHeight = documentHeight;
         boundingCoords = new int[] {x1,y1,x2,y2};
         this.boundingRectangle = new Rectangle(x1, y1, x2-x1, y2 - y1);
     }
@@ -139,5 +156,14 @@ public class Element {
 
     public int getY2() {
         return y2;
+    }
+
+    private Integer documentHeight;
+    private Integer documentLines;
+    public Integer getDocumentHeight() {
+        return documentHeight;
+    }
+    public Integer getDocumentLines() {
+        return documentLines;
     }
 }

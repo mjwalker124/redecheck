@@ -119,4 +119,40 @@ public class Utils {
 
     }
 
+    public static File getOutputFilePath(String url, String timeStamp, int errorID, boolean isAccessibileIssue) {
+
+        File output = null;
+        if (!url.contains("www.") && (!url.contains("http://"))) {
+            String[] splits = url.split("/");
+            String webpage = splits[0];
+            String mutant = "index-" + timeStamp;
+            //                    splits[1];
+            try {
+                output = new File(new File(".").getCanonicalPath() + "/../reports/" + webpage + "/" + mutant + "/accessibility/fault" + errorID + "/");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else if (url.contains("http://")) {
+            String[] splits = url.split("http://");
+            String webpage = splits[1];
+            String mutant = timeStamp;
+            try {
+                output = new File(new java.io.File(".").getCanonicalPath() + "/../reports/" + webpage + "/" + mutant + "/accessibility/fault" + errorID + "/");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }else {
+            String[] splits = url.split("www.");
+            String webpage = splits[1];
+            String mutant = timeStamp;
+            try {
+                output = new File(new File(".").getCanonicalPath() + "/../reports/" + webpage + "/" + mutant + "/accessibility/fault" + errorID + "/");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return output;
+
+    }
+
 }

@@ -2,6 +2,11 @@ package shef.main;
 
 
 import com.beust.jcommander.JCommander;
+import com.google.api.services.sheets.v4.Sheets;
+import com.google.api.services.sheets.v4.model.Sheet;
+import com.google.api.services.sheets.v4.model.SheetProperties;
+import com.google.api.services.sheets.v4.model.Spreadsheet;
+import com.google.api.services.sheets.v4.model.SpreadsheetProperties;
 import edu.gatech.xpert.dom.DomNode;
 import edu.gatech.xpert.dom.JsonDomParser;
 import edu2.gatech.xpert.dom.layout.AGDiff;
@@ -13,13 +18,21 @@ import org.openqa.selenium.WebDriver;
 //import org.openqa.selenium.phantomjs.PhantomJSDriver;
 //import org.openqa.selenium.phantomjs.PhantomJSDriverService;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import shef.analysis.RLGComparator;
+import shef.handlers.CloudReporting;
 import shef.layout.LayoutFactory;
+import shef.mutation.PositionalXMLReader;
 import shef.mutation.ResultClassifier;
 import shef.rlg.ResponsiveLayoutGraph;
 import shef.utils.ResultProcessor;
 import shef.utils.StopwatchFactory;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 import java.awt.*;
 import java.io.*;
 import java.text.DecimalFormat;
@@ -74,8 +87,8 @@ public class Tool {
     static int sleep = 50;
     private CommandLineParser clp = new CommandLineParser();
 
-
     public Tool(String[] args) throws IOException, InterruptedException {
+
         current = new java.io.File( "." ).getCanonicalPath();
         System.setProperty("phantomjs.binary.path", current + "/../resources/phantomjs");
         System.setProperty("webdriver.chrome.driver", current + "/../resources/chromedriver");
@@ -338,11 +351,12 @@ public class Tool {
 //                    wdriver.manage().timeouts().implicitlyWait(sleep, TimeUnit.MILLISECONDS);
                     //System.out.println(scriptToExtract);
                     String extractedDom = extractDOM(wdriver, scriptToExtract);
-                    //System.out.println(extractedDom);
+                    String src = wdriver.getPageSource();
+
 
                     if (previous.equals(extractedDom)) {
 
-                        lFactories.put(w, new LayoutFactory(extractedDom));
+                        lFactories.put(w, new LayoutFactory(extractedDom, src));
                         domStrings.put(w, extractedDom);
                         if (saveDom) {
                             FileUtils.writeStringToFile(domFile, extractedDom);

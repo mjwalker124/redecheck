@@ -202,6 +202,23 @@ function getXPath(node){
     return path;
 }
 
+/**
+ * Returns a position of a DOM node in the source code (this is an arbitary int for comparison purposes)
+ * @param node
+ * @returns {Number}
+ */
+function getCodePosition(node){
+    var find = node.outerHTML.replace(/\n/g, "{new_line_delimiter}");
+    find = find.replace(/\s/g, "");
+
+    var searchSpace = html.slice(0, html.indexOf(find));
+    if ((searchSpace.match(/{new_line_delimiter}/g) || []).length == 0) {
+        console.log("Search string: " + find);
+    }
+    return (searchSpace.match(/{new_line_delimiter}/g) || []).length
+
+}
+
 function getTag(node) {
 	return node.tagName;
 }
@@ -421,6 +438,12 @@ window.scrollTo(0, 0);
  * Perform depth first traversal of DOM and return the DOM
  * data string in JSON format
  */
+
+var html = document.documentElement.outerHTML;
+html = html.replace(/\n/g, "{new_line_delimiter}");
+html = html.replace(/\s/g, "");
+var numberOfLinesInDocument = (html.match(/{new_line_delimiter}/g) || []).length;
+console.log(html);
 var data = '[';
 
 var nodes = Array();
@@ -442,12 +465,12 @@ if(heads && heads.length > 0){
   nodes.push([heads[0],-1]);
 }
 nodes.push([document.body,-1]);
-
+var height = document.documentElement.scrollHeight;
 
 while(nodes.length > 0){
   //process node
   var t = nodes.pop(), n = t[0], pid=t[1];
-	console.log(getXPath(n));
+	//console.log(getXPath(n));
   var nodeid = nodeCtr++;
   if(n.nodeName && n.nodeName == "#text"){
   }else if (toIgnore.indexOf(n.nodeName) == -1) {
@@ -456,11 +479,14 @@ while(nodes.length > 0){
 			  c('nodeid', nodeid),
 			  c('pid', pid),
 			  c('xpath', n, getXPath, true),
+              c('position_in_code', n, getCodePosition),
 			  c('visible', n, isVisible),
 			  c('overflow', n, getOverflow),
 			  c('coord', n, getDOMCoords),
 			  c('alt', n, getAlt),
-			  c('tag', n, getTag)
+			  c('tag', n, getTag),
+              c('document_height', height),
+              c('document_lines', numberOfLinesInDocument)
 			  // ,
 			  // c('styles', n, getAllStyles)
 		  ];

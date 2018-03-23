@@ -222,6 +222,13 @@ function getCodePosition(node){
 function getTag(node) {
 	return node.tagName;
 }
+
+function getBackgroundColour(node) {
+    return '\"' + getStyle(node, "background-color") + '\"';
+}
+function getForegroundColour(node) {
+    return '\"' + getStyle(node, "color") + '\"';
+}
 /**
  * Helper function for getXPath
  */
@@ -390,6 +397,8 @@ function getAttributes(attr){
 	return "{}";
 }
 
+
+
 function getNodeValue(node){
 	if(node){
 		var val = encodeURIComponent(node.nodeValue);
@@ -485,8 +494,11 @@ while(nodes.length > 0){
 			  c('coord', n, getDOMCoords),
 			  c('alt', n, getAlt),
 			  c('tag', n, getTag),
+              c('background_colour', n, getBackgroundColour),
+              c('foreground_colour', n, getForegroundColour),
               c('document_height', height),
-              c('document_lines', numberOfLinesInDocument)
+              c('document_lines', numberOfLinesInDocument),
+
 			  // ,
 			  // c('styles', n, getAllStyles)
 		  ];

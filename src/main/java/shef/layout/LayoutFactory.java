@@ -149,7 +149,8 @@ public class LayoutFactory {
                                 if (!childOfNoSizeElement(xpath)) {
                                     try {
                                         //System.out.println(obj.toString());
-                                        Element e = new Element(obj.getString("xpath"), obj.getInt("position_in_code"), obj.getInt("document_height"), obj.getInt("document_lines"), obj.getString("tag"), obj, coords[0], coords[1], coords[2], coords[3]);
+
+                                        Element e = new Element(obj.getString("xpath"), obj.getInt("position_in_code"), obj.getString("background_colour"), obj.getString("foreground_colour"), obj.getInt("document_height"), obj.getInt("document_lines"), obj.getString("tag"), obj, coords[0], coords[1], coords[2], coords[3]);
                                         return e;
                                     } catch (JSONException e) {
                                         System.out.println("Error while layout the XPath of " + obj.toString());

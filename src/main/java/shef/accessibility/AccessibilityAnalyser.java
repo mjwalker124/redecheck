@@ -142,6 +142,7 @@ public class AccessibilityAnalyser {
         List<IAccessibilityIssue> issues = new ArrayList<>();
         issues.add(new ImageHasAltTag());
         issues.add(new VisualLayoutMatchesSource());
+        issues.add(new ColourContrastTester());
         return issues;
     }
 

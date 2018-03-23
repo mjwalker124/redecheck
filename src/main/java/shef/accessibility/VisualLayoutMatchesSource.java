@@ -135,7 +135,7 @@ public class VisualLayoutMatchesSource implements IAccessibilityIssue
             int lineDiff = Math.abs(e1.getLineNumber() - e2.getLineNumber());
 
             //System.out.println(e1.getY1() + " - " + e2.getY1() + " : " + lineDiff);
-            System.out.println(e1.getDocumentHeight() + " - " + e1.getDocumentLines());
+            //System.out.println(e1.getDocumentHeight() + " - " + e1.getDocumentLines());
             if (yDiff > (lineDiff * (e1.getDocumentHeight() / e1.getDocumentLines()) * 20)) {
                 return false;
             }
@@ -207,7 +207,7 @@ public class VisualLayoutMatchesSource implements IAccessibilityIssue
         for ( Map.Entry<Element, Element>  error : VisualLayoutMatchesSource.errors.entrySet()) {
             Element element = error.getKey();
             Element element2 = error.getValue();
-            System.out.println(element.getXpath());
+            //System.out.println(element.getXpath());
             CellData elementXPath = new CellData();
             elementXPath.setUserEnteredValue(new ExtendedValue().setStringValue(element.getXpath()));
 

@@ -2,6 +2,9 @@
 
 Currently I am extending redecheck for my dissertation in order to be able to run accessibility tests through it.
 
+Example command to run from the target directory
+java -jar redecheck-jar-with-dependencies.jar --url [url for website] --instructions [file for js to run on page on load]
+
 ReDeCheck (REsponsive DEsign CHECKer, pronounced “Ready Check”) is an automated tool designed to aid developers during
 the process of testing the layouts of responsive (i.e., "mobile ready") web sites. With the huge range of devices
 currently available, performing adequate quality assurance on a sufficient range of devices is extremely difficult, if

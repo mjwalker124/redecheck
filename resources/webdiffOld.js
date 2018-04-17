@@ -67,7 +67,7 @@ function __parseBorderWidth(width) {
 
 //returns border width for some element
 function __getBorderWidth(element) {
-	var res = new Object();
+	var res = {};
 	res.left = 0; res.top = 0; res.right = 0; res.bottom = 0;
 	if (window.getComputedStyle) {
 		//for Firefox
@@ -90,7 +90,7 @@ function __getBorderWidth(element) {
 
 //returns the absolute position of some element within document
 function getElementAbsolutePos(element) {
-	var res = new Object();
+	var res = {};
 	res.x = 0; res.y = 0;
 	if (element !== null) {
 		if (element.getBoundingClientRect) {
@@ -315,7 +315,7 @@ function getNodeValue(node){
 		var val = encodeURIComponent(node.nodeValue);
 		return "'"+val.replace(/'/g,"\\'")+"'";
 	}
-	return;
+	
 }
 
 

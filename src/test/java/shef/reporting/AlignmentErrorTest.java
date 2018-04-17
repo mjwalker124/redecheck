@@ -2,36 +2,20 @@ package shef.reporting;
 
 import junit.framework.TestCase;
 
-/**
- * Created by thomaswalsh on 28/09/15.
- */
+/** Created by thomaswalsh on 28/09/15. */
 public class AlignmentErrorTest extends TestCase {
 
-    public void testGetOracle() throws Exception {
+  public void testGetOracle() {}
 
-    }
+  public void testGetTest() {}
 
-    public void testGetTest() throws Exception {
+  public void testToString() {}
 
-    }
+  public void testCompareTo() {}
 
-    public void testToString() throws Exception {
+  public void testGenerateKey() {}
 
-    }
+  public void testCalculateRangeOfViewportWidths() {}
 
-    public void testCompareTo() throws Exception {
-
-    }
-
-    public void testGenerateKey() throws Exception {
-
-    }
-
-    public void testCalculateRangeOfViewportWidths() throws Exception {
-
-    }
-
-    public void testGetDesc() throws Exception {
-
-    }
+  public void testGetDesc() {}
 }

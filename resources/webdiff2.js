@@ -67,7 +67,7 @@ function __parseBorderWidth(width) {
 
 //returns border width for some element
 function __getBorderWidth(element) {
-	var res = new Object();
+	var res = {};
 	res.left = 0; res.top = 0; res.right = 0; res.bottom = 0;
 	if (window.getComputedStyle) {
 		//for Firefox
@@ -90,7 +90,7 @@ function __getBorderWidth(element) {
 
 //returns the absolute position of some element within document
 function getElementAbsolutePos(element) {
-	var res = new Object();
+	var res = {};
 	res.x = 0; res.y = 0;
 	if (element !== null) {
 		if (element.getBoundingClientRect) {
@@ -229,6 +229,12 @@ function getBackgroundColour(node) {
 function getForegroundColour(node) {
     return '\"' + getStyle(node, "color") + '\"';
 }
+function getFontSize(node) {
+    document.designMode = "on";
+    window.find(node.text);
+    var isAllBold = document.queryCommandState("Bold");
+	return (isAllBold ? parseInt(getStyle(node, "font-size")) + 6 : parseInt(getStyle(node, "font-size")) );
+}
 /**
  * Helper function for getXPath
  */
@@ -358,11 +364,47 @@ function getZIndex(node){
 }
 
 function getAlt(node) {
-	if (node.getAttribute('alt') == 'null') {
+	if (node.getAttribute('alt') === 'null') {
 		return '';
 	}
 	return "'" + node.getAttribute('alt') + "'";
 }
+
+function getId(node) {
+    if (node.getAttribute('id') === 'null') {
+        return '';
+    }
+    return "'" + node.getAttribute('id') + "'";
+}
+
+function getAriaLabelledBy(node) {
+    if (node.getAttribute('aria-labelledby') === 'null') {
+        return '';
+    }
+    return "'" + node.getAttribute('aria-labelledby') + "'";
+}
+
+function getAriaLabel(node) {
+    if (node.getAttribute('aria-label') === 'null') {
+        return '';
+    }
+    return "'" + node.getAttribute('aria-label') + "'";
+}
+
+function getLongDesc(node) {
+	if (node.getAttribute('longdesc') === 'null') {
+		return '';
+	}
+    return "'" + node.getAttribute('longdesc') + "'";
+}
+
+function getForAttribute(node) {
+	if (node.getAttribute('for') === 'null') {
+		return '';
+	}
+    return "'" + node.getAttribute('for') + "'";
+}
+
 
 /**
  * Checker function while populating JSON object
@@ -404,7 +446,7 @@ function getNodeValue(node){
 		var val = encodeURIComponent(node.nodeValue);
 		return "'"+val.replace(/'/g,"\\'")+"'";
 	}
-	return;
+	
 }
 
 
@@ -463,17 +505,19 @@ var maxHeight = 0;
 var toIgnore = ["A", "I", "G", "PATH", "AREA", "B", "BLOCKQUOTE",
 	"BR", "CANVAS", "CENTER", "CSACTIONDICT", "CSSCRIPTDICT", "CUFON",
 	"CUFONTEXT", "DD", "EM", "EMBED", "FIELDSET", "FONT",
-	"HEAD", "HR", "IFRAME", "INS", "LEGEND", "LINK", "MAP", "MENUMACHINE",
+	"HR", "IFRAME", "INS", "LEGEND", "LINK", "MAP", "MENUMACHINE",
 	"META", "NOFRAMES", "NOSCRIPT", "OBJECT", "OPTGROUP", "OPTION",
 	"PARAM", "S", "SCRIPT", "SMALL", "STRIKE", "STRONG",
-	"STYLE", "TBODY", "TITLE", "TR", "TT", "U"];
+	"STYLE", "TT", "U"];
 
 //Process body nodes
 var heads = document.getElementsByTagName("head");
 if(heads && heads.length > 0){
-  nodes.push([heads[0],-1]);
+    nodes.push([heads[0]]);
+} else {
+    nodes.push([heads[0]]);
 }
-nodes.push([document.body,-1]);
+nodes.push([document.body]);
 var height = document.documentElement.scrollHeight;
 
 while(nodes.length > 0){
@@ -498,7 +542,12 @@ while(nodes.length > 0){
               c('foreground_colour', n, getForegroundColour),
               c('document_height', height),
               c('document_lines', numberOfLinesInDocument),
-
+			  c('font_size', n, getFontSize),
+			  c('id', n, getId),
+			  c('aria-labelledby', n, getAriaLabelledBy),
+			  c('aria-label', n, getAriaLabel),
+			  c('longdesc', n, getLongDesc),
+			  c('for', n, getForAttribute)
 			  // ,
 			  // c('styles', n, getAllStyles)
 		  ];

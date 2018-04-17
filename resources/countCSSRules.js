@@ -32,5 +32,5 @@ function countCSSRules() {
     console.log(log);
     console.log(results);
     return results;
-};
+}
 countCSSRules();

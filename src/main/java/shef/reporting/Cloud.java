@@ -5,13 +5,11 @@ import shef.accessibility.IAccessibilityIssue;
 import java.util.List;
 
 public class Cloud {
-    public Cloud(List<IAccessibilityIssue> accessibilityIssues) {
-        this.accessibilityIssues = accessibilityIssues;
-    }
+  private List<IAccessibilityIssue> accessibilityIssues;
 
-    public void upload() {
+  public Cloud(List<IAccessibilityIssue> accessibilityIssues) {
+    this.accessibilityIssues = accessibilityIssues;
+  }
 
-    }
-
-    private List<IAccessibilityIssue> accessibilityIssues;
+  public void upload() {}
 }

@@ -1,83 +1,90 @@
 package shef.rlg;
 
-/**
- * Created by thomaswalsh on 10/08/15.
- * Last modified on 08/09/15.
- */
+/** Created by thomaswalsh on 10/08/15. Last modified on 08/09/15. */
 public class WidthConstraint {
-    // Instance variables
-    int min;
-    int max;
-    double percentage;
-    Node parent;
-    double adjustment;
+  // Instance variables
+  int min;
+  int max;
+  double percentage;
+  Node parent;
+  double adjustment;
 
-    public int getMin() {
-        return min;
-    }
+  /**
+   * Constructor for the WidthConstraint object
+   *
+   * @param min the lower bound viewport width at which the constraint holds
+   * @param max the upper bound viewport width at which the constraint holds
+   * @param p the 'percentage' coefficient of the constraint
+   * @param parent the parent element of the node to which this constraint applies
+   * @param a the 'adjustment' coefficient of the constraint
+   */
+  public WidthConstraint(int min, int max, double p, Node parent, double a) {
+    this.min = min;
+    this.max = max;
+    //        System.out.println(Double.isNaN(p));
+    this.percentage = p;
+    this.parent = parent;
+    this.adjustment = a;
+  }
 
-    public void setMin(int min) {
-        this.min = min;
-    }
+  public int getMin() {
+    return min;
+  }
 
-    public int getMax() {
-        return max;
-    }
+  public void setMin(int min) {
+    this.min = min;
+  }
 
-    public void setMax(int max) {
-        this.max = max;
-    }
+  public int getMax() {
+    return max;
+  }
 
-    public double getPercentage() {
-        return percentage;
-    }
+  public void setMax(int max) {
+    this.max = max;
+  }
 
-    public void setPercentage(double percentage) {
-        this.percentage = percentage;
-    }
+  public double getPercentage() {
+    return percentage;
+  }
 
-    public Node getParent() {
-        return parent;
-    }
+  public void setPercentage(double percentage) {
+    this.percentage = percentage;
+  }
 
-    public void setParent(Node parent) {
-        this.parent = parent;
-    }
+  public Node getParent() {
+    return parent;
+  }
 
-    public double getAdjustment() {
-        return adjustment;
-    }
+  public void setParent(Node parent) {
+    this.parent = parent;
+  }
 
-    public void setAdjustment(double adjustment) {
-        this.adjustment = adjustment;
-    }
+  public double getAdjustment() {
+    return adjustment;
+  }
 
-    /**
-     * Constructor for the WidthConstraint object
-     * @param min       the lower bound viewport width at which the constraint holds
-     * @param max       the upper bound viewport width at which the constraint holds
-     * @param p         the 'percentage' coefficient of the constraint
-     * @param parent    the parent element of the node to which this constraint applies
-     * @param a         the 'adjustment' coefficient of the constraint
-     */
-    public WidthConstraint(int min, int max, double p, Node parent, double a) {
-        this.min = min;
-        this.max = max;
-//        System.out.println(Double.isNaN(p));
-        this.percentage = p;
-        this.parent = parent;
-        this.adjustment = a;
-    }
+  public void setAdjustment(double adjustment) {
+    this.adjustment = adjustment;
+  }
 
-    /**
-     * Creates a formatted string to nicely display the attributes of the constraint
-     * @return          the formatted string for the constraint
-     */
-    public String toString() {
-        return min + " --> " + max + " : " + percentage*100 + "% of " + parent.xpath + " + " + adjustment;
-    }
+  /**
+   * Creates a formatted string to nicely display the attributes of the constraint
+   *
+   * @return the formatted string for the constraint
+   */
+  public String toString() {
+    return min
+        + " --> "
+        + max
+        + " : "
+        + percentage * 100
+        + "% of "
+        + parent.xpath
+        + " + "
+        + adjustment;
+  }
 
-    public String generateEquationString() {
-        return percentage*100 + "% of " + parent.xpath + " + " + adjustment;
-    }
+  public String generateEquationString() {
+    return percentage * 100 + "% of " + parent.xpath + " + " + adjustment;
+  }
 }

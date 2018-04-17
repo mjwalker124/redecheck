@@ -1,8 +1,7 @@
 package shef.rlg;
 
-/**
- * Created by thomaswalsh on 12/08/15.
- */
+/** Created by thomaswalsh on 12/08/15. */
 public enum Type {
-    PARENT_CHILD, SIBLING;
+  PARENT_CHILD,
+  SIBLING
 }

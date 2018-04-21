@@ -35,7 +35,7 @@ public class ResizeText implements IAccessibilityIssue {
         return errors;
     }
     private boolean testedResponsiveness = false;
-    String[] tagsWhichTheFontsizeMustChange = { "H1", "H2", "H3", "H4","H5", "H6","A", "LABEL" };
+    String[] tagsWhichTheFontsizeMustChange = { "H1", "H2", "H3", "H4","H5", "H6","A", "LABEL", "DIV", "P", "SPAN" };
 
     @Override
     public void captureScreenshotExample(
@@ -58,10 +58,10 @@ public class ResizeText implements IAccessibilityIssue {
 
             g2d.dispose();
             try {
-                Drive driveService = CloudReporting.getDriveService();
                 File output = Utils.getOutputFilePath(url, timeStamp, errorID, true);
+                FileUtils.forceMkdir(output);
                 Boolean makeFolders = new File(output + "/ResizeText").mkdir();
-                System.out.println(output);
+
                 ImageIO.write(img, "png", new File(output + "/ResizeText/TextDidNotChange.png"));
 
             } catch (IOException e) {
@@ -85,6 +85,7 @@ public class ResizeText implements IAccessibilityIssue {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            i++;
         }
 
     }
@@ -98,13 +99,14 @@ public class ResizeText implements IAccessibilityIssue {
 
         String initialFontsize = webDriver.findElement(By.xpath(element.getXpath())).getCssValue("font-size");
         js.executeScript("arguments[0].setAttribute('style', 'font-size:200%;')", htmlBaseElement);
+
         String postFontsize = webDriver.findElement(By.xpath(element.getXpath())).getCssValue("font-size");
-        if (initialFontsize.equalsIgnoreCase(postFontsize) && ArrayUtils.contains(tagsWhichTheFontsizeMustChange,  element.getTag())) {
+    if (initialFontsize.equalsIgnoreCase(postFontsize) && (ArrayUtils.contains(tagsWhichTheFontsizeMustChange,  element.getTag().toUpperCase()))) {
             didPass = false;
             errors.add(element);
         } else {
             System.out.println("Fontsize did change" + element.getTag());
-            if (!testedResponsiveness) {
+            if (!testedResponsiveness ) {
                 RLGAnalyser analyser =
                     new RLGAnalyser(r, webDriver, fullUrl, breakpoints, lFactories, vmin, vmax);
 

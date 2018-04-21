@@ -29,6 +29,8 @@ public class InfoAndRelationships implements IAccessibilityIssue {
   private int numberOfTimesTested = 0;
   private int width;
   private boolean cloudReportGenerated = false;
+  private static HashMap<String, Element> idMap = new HashMap<>();
+  private boolean idMapGenerated = false;
 
   public static List<Element> getErrors() {
     return errors;
@@ -84,25 +86,19 @@ public class InfoAndRelationships implements IAccessibilityIssue {
 
   @Override
   public WebDriver checkIssue(Element element, HashMap<String, Element> otherElements, int width, WebDriver webDriver, ResponsiveLayoutGraph r, String fullUrl, ArrayList<Integer> breakpoints, HashMap<Integer, LayoutFactory> lFactories, int vmin, int vmax) {
+    if(!idMapGenerated) {
+      for (Map.Entry<String, Element> elementEntry : otherElements.entrySet()) {
+        idMap.put(elementEntry.getValue().getAttr("id"), elementEntry.getValue());
+      }
+    }
+
     if (!element.getInHead()) {
       this.width = width;
-      if (element.hasAttribute("aria-labelledby") || element.hasAttribute("for")) {
-        boolean passedLabelledBy = !element.hasAttribute("aria-labelledby");
-        boolean passedIsFor = !element.hasAttribute("for");
-        for (Map.Entry<String, Element> elementEntry : otherElements.entrySet()) {
-          if (!elementEntry.getValue().equals(element)
-              && elementEntry.getValue().getAttr("id").equals(element.getAttr("aria-labelledby"))) {
-            passedLabelledBy = true;
-          }
-          if (!elementEntry.getValue().equals(element)
-                  && elementEntry.getValue().getAttr("id").equals(element.getAttr("for"))) {
-            passedIsFor = true;
-          }
-        }
-        if (!passedIsFor || !passedLabelledBy) {
-          InfoAndRelationships.errors.add(element);
-          didPass = false;
-        }
+      //This checks to see if a referenced id actually exists in the page.
+      if ((element.hasAttribute("aria-labelledby") && (idMap.get(element.getAttr("aria-labelledby")) == null))
+              || ((element.hasAttribute("for")) && (idMap.get(element.getAttr("for")) == null)
+              )) {
+        InfoAndRelationships.errors.add(element);
       }
     }
     return webDriver;

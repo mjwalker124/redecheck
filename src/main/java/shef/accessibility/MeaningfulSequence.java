@@ -109,8 +109,8 @@ public class MeaningfulSequence implements IAccessibilityIssue {
       addElements = true;
     } else {
       for (Integer storedWidth : storedWidths) {
-        if (!(width > storedWidth - 150 && width < storedWidth + 150)) {
-          addElements = true;
+        if ((width > storedWidth - 150 && width < storedWidth + 150)) {
+          addElements = false;
         }
       }
     }

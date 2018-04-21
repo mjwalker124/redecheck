@@ -25,6 +25,8 @@ import java.util.Map;
 public class ColourContrast implements IAccessibilityIssue {
 
   private static HashMap<Integer, List<Element>> errors = new HashMap<>();
+  private static HashMap<String, List<Integer>> xPathWidthStore = new HashMap<>();
+
   public int[] coords;
   private String xpath;
   private Boolean didPass = true;
@@ -88,12 +90,23 @@ public class ColourContrast implements IAccessibilityIssue {
   }
 
   private boolean shouldCheckError(Element element, int width) {
-      for(Map.Entry<Integer, List<Element>> elementEntry : ColourContrast.errors.entrySet()) {
-          if (elementEntry.getKey() > width - 150 && elementEntry.getKey() > width + 150 && elementEntry.getValue().contains(element)) {
-              return false;
-          }
-      }
+    List<Integer> storedWidths = xPathWidthStore.get(element.getXpath());
+
+
+    if (storedWidths == null || storedWidths.size() == 0) {
+      List<Integer> widths = new ArrayList<>();
+      widths.add(width);
+      xPathWidthStore.put(element.getXpath(), widths);
       return true;
+    }
+    for (Integer storedWidth : storedWidths) {
+      if ((width > storedWidth - 150 && width < storedWidth + 150)) {
+        return false;
+      }
+    }
+    storedWidths.add(width);
+    xPathWidthStore.put(element.getXpath(), storedWidths);
+    return true;
   }
 
   @Override

@@ -76,6 +76,46 @@ public class ElementProtrusionFailure extends ResponsiveLayoutFailure {
     //        }
   }
 
+  @Override
+  public int getWindowWidth() {
+    return (ofCon.getMin() + ofCon.getMax()) / 2;
+  }
+
+  @Override
+  public BufferedImage captureScreenShot(
+          int errorID, WebDriver webDriver, String fullUrl) {
+    int captureWidth = (ofCon.getMin() + ofCon.getMax()) / 2;
+
+    // Layout factory to store the DOM
+    HashMap<Integer, LayoutFactory> lfs = new HashMap<>();
+
+    // Capture the image and the DOM
+    BufferedImage img =
+            RLGExtractor.getScreenshot(captureWidth, errorID, lfs, webDriver, fullUrl);
+
+    // Get the coordinates of the two overflowing elements
+    LayoutFactory lf = lfs.get(captureWidth);
+
+    Element e1 = lf.getElementMap().get(ofCon.getNode1().getXpath());
+    int[] coords1 = e1.getBoundingCoords();
+
+    Element e2 = lf.getElementMap().get(ofCon.getNode2().getXpath());
+    int[] coords2 = e2.getBoundingCoords();
+
+    // Set up Graphics@d object so the elements can be highlighted
+    Graphics2D g2d = img.createGraphics();
+
+    // Highlight the two elements in different colours
+    g2d.setStroke(new BasicStroke(3));
+    g2d.setColor(Color.RED);
+    g2d.drawRect(coords1[0], coords1[1], coords1[2] - coords1[0], coords1[3] - coords1[1]);
+    g2d.setColor(Color.CYAN);
+    g2d.drawRect(coords2[0], coords2[1], coords2[2] - coords2[0], coords2[3] - coords2[1]);
+    g2d.dispose();
+
+    return img;
+  }
+
   /**
    * Captures a screenshot of the failure, highlights the overflowing elements and then saves it to
    * disk
@@ -99,7 +139,7 @@ public class ElementProtrusionFailure extends ResponsiveLayoutFailure {
 
       // Capture the image and the DOM
       BufferedImage img =
-          RLGExtractor.getScreenshot(captureWidth, errorID, lfs, webDriver, fullUrl);
+              RLGExtractor.getScreenshot(captureWidth, errorID, lfs, webDriver, fullUrl);
 
       // Get the coordinates of the two overflowing elements
       LayoutFactory lf = lfs.get(captureWidth);

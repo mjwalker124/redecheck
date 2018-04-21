@@ -65,6 +65,43 @@ public class MisalignedFailure extends ResponsiveLayoutFailure {
   }
 
   @Override
+  public BufferedImage captureScreenShot(
+          int errorID, WebDriver webDriver, String fullUrl) {
+    int captureWidth = 0;
+    captureWidth = (min + max) / 2;
+
+    HashMap<Integer, LayoutFactory> lfs = new HashMap<>();
+    BufferedImage img;
+    //        if (imageMap.containsKey(captureWidth)) {
+    //            img = imageMap.get(captureWidth);
+    //        } else {
+    img = RLGExtractor.getScreenshot(captureWidth, errorID, lfs, webDriver, fullUrl);
+    //            imageMap.put(captureWidth, img);
+    //        }
+    LayoutFactory lf = lfs.get(captureWidth);
+
+    Graphics2D g2d = img.createGraphics();
+    g2d.setColor(Color.CYAN);
+    //        g2d.setStroke(new BasicStroke(5));
+    for (Node n : aligned) {
+      Element e1 = lf.getElementMap().get(n.getXpath());
+      int[] coords1 = e1.getBoundingCoords();
+      g2d.drawRect(coords1[0], coords1[1], coords1[2] - coords1[0], coords1[3] - coords1[1]);
+    }
+
+    g2d.setColor(Color.RED);
+    for (Node n2 : notAligned) {
+      Element e2 = lf.getElementMap().get(n2.getXpath());
+      int[] coords2 = e2.getBoundingCoords();
+      g2d.drawRect(coords2[0], coords2[1], coords2[2] - coords2[0], coords2[3] - coords2[1]);
+    }
+
+    g2d.dispose();
+
+    return img;
+  }
+
+  @Override
   public void captureScreenshotExample(
       int errorID, String url, WebDriver webDriver, String fullUrl, String timeStamp) {
     int captureWidth = 0;
@@ -126,6 +163,11 @@ public class MisalignedFailure extends ResponsiveLayoutFailure {
   @Override
   public int[] getBounds() {
     return new int[0];
+  }
+
+  @Override
+  public int getWindowWidth() {
+    return (min + max) / 2;
   }
 
   //    @Override

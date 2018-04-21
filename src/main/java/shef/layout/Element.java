@@ -117,15 +117,15 @@ public class Element {
         colours[2] = Double.parseDouble(colourString[2]) / 255;
         colours[3] = 1.0;
       } else if (colour.equals("transparent")) {
-        System.out.println(this.getXpath());
-        System.out.println(this.tag);
+        //System.out.println(this.getXpath());
+        //System.out.println(this.tag);
 
         if (this.tag.equalsIgnoreCase("BODY")) {
           // System.out.println("got body");
           return new Double[] {1.0, 1.0, 1.0, 1.0};
         } else {
-          System.out.println(tag);
-          System.out.println("How");
+          //System.out.println(tag);
+          //System.out.println("How");
           return new Double[] {1.0, 1.0, 1.0, 0.0};
         }
       }
@@ -136,10 +136,15 @@ public class Element {
   private Double[] getActualBackground() {
     if (backgroundColour[3] < 100) {
       Element parentElement = this.getParent();
-      if (parentElement != null) {
-        return mergeTwoColours(backgroundColour, this.getParent().getActualBackground());
-      } else {
-        return mergeTwoColours(backgroundColour, new Double[] {1.0, 1.0, 1.0, 1.0});
+      try {
+        if (parentElement != null) {
+          return mergeTwoColours(backgroundColour, this.getParent().getActualBackground());
+        } else {
+          return mergeTwoColours(backgroundColour, new Double[] {1.0, 1.0, 1.0, 1.0});
+        }
+      } catch(StackOverflowError ex) {
+        System.out.println(parentElement);
+        return new Double[] {1.0, 1.0, 1.0, 1.0};
       }
     } else {
       return backgroundColour;

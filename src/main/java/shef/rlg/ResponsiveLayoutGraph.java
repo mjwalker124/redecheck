@@ -187,12 +187,12 @@ public class ResponsiveLayoutGraph {
     for (Map.Entry<String, Element> elementSet : last.layout.getElements().entrySet()) {
       String stilVis = elementSet.getKey();
       Element element = elementSet.getValue();
-      if (!element.getInHead()) {
+      //if (!element.getInHead()) {
         VisibilityConstraint vc = visCons.get(stilVis);
         if (vc.getDisappear() == 0) {
           vc.setDisappear(widths[widths.length - 1]);
         }
-      }
+      //}
     }
   }
 
@@ -298,12 +298,12 @@ public class ResponsiveLayoutGraph {
 
       // Add each node to overall set
       String xpath = e.getXpath();
-      if (!e.getInHead()) {
+      //if (!e.getInHead()) {
         nodes.put(xpath, new Node(xpath));
 
         // Create visibility constraint for each one
         cons.put(xpath, new VisibilityConstraint(widths[0], 0));
-      }
+     // }
     }
   }
 

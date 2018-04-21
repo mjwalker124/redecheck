@@ -87,7 +87,6 @@ public class CSSMutator {
     "S",
     "SCRIPT",
     "SMALL",
-    "SPAN",
     "STRIKE",
     "STRONG",
     "STYLE",

@@ -9,6 +9,7 @@ import shef.layout.Element;
 import shef.layout.LayoutFactory;
 import shef.main.RLGExtractor;
 import shef.main.Utils;
+import shef.rlg.ResponsiveLayoutGraph;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -58,7 +59,7 @@ public class InfoAndRelationships implements IAccessibilityIssue {
         Drive driveService = CloudReporting.getDriveService();
         File output = Utils.getOutputFilePath(url, timeStamp, errorID, true);
         FileUtils.forceMkdir(output);
-        ImageIO.write(img, "png", new File(output + "/ImageAltTagMissing" + captureWidth + ".png"));
+        ImageIO.write(img, "png", new File(output + "/InfoAndRelationships" + ".png"));
 
         /*
         com.google.api.services.drive.model.File imageData = new com.google.api.services.drive.model.File();
@@ -82,8 +83,9 @@ public class InfoAndRelationships implements IAccessibilityIssue {
   }
 
   @Override
-  public void checkIssue(Element element, HashMap<String, Element> otherElements, int width) {
+  public WebDriver checkIssue(Element element, HashMap<String, Element> otherElements, int width, WebDriver webDriver, ResponsiveLayoutGraph r, String fullUrl, ArrayList<Integer> breakpoints, HashMap<Integer, LayoutFactory> lFactories, int vmin, int vmax) {
     if (!element.getInHead()) {
+      this.width = width;
       if (element.hasAttribute("aria-labelledby") || element.hasAttribute("for")) {
         boolean passedLabelledBy = !element.hasAttribute("aria-labelledby");
         boolean passedIsFor = !element.hasAttribute("for");
@@ -103,6 +105,7 @@ public class InfoAndRelationships implements IAccessibilityIssue {
         }
       }
     }
+    return webDriver;
   }
 
   @Override

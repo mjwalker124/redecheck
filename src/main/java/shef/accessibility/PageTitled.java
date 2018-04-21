@@ -3,6 +3,8 @@ package shef.accessibility;
 import com.google.api.services.sheets.v4.model.Sheet;
 import org.openqa.selenium.WebDriver;
 import shef.layout.Element;
+import shef.layout.LayoutFactory;
+import shef.rlg.ResponsiveLayoutGraph;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,11 +27,12 @@ public class PageTitled implements IAccessibilityIssue {
       int errorID, String url, WebDriver webDriver, String fullurl, String timeStamp) {}
 
   @Override
-  public void checkIssue(Element element, HashMap<String, Element> otherElements, int width) {
+  public WebDriver checkIssue(Element element, HashMap<String, Element> otherElements, int width, WebDriver webDriver, ResponsiveLayoutGraph r, String fullUrl, ArrayList<Integer> breakpoints, HashMap<Integer, LayoutFactory> lFactories, int vmin, int vmax) {
     System.out.println("***** title test");
     if (element.getTag().equalsIgnoreCase("title")) {
       didPass = true;
     }
+    return webDriver;
   }
 
   @Override

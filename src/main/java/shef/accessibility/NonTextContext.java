@@ -9,6 +9,7 @@ import shef.layout.Element;
 import shef.layout.LayoutFactory;
 import shef.main.RLGExtractor;
 import shef.main.Utils;
+import shef.rlg.ResponsiveLayoutGraph;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -57,20 +58,10 @@ public class NonTextContext implements IAccessibilityIssue {
         Drive driveService = CloudReporting.getDriveService();
         File output = Utils.getOutputFilePath(url, timeStamp, errorID, true);
         FileUtils.forceMkdir(output);
-        ImageIO.write(img, "png", new File(output + "/ImageAltTagMissing" + captureWidth + ".png"));
+        Boolean makeFolders = new File(output + "/NonTextContext").mkdir();
 
-        /*
-        com.google.api.services.drive.model.File imageData = new com.google.api.services.drive.model.File();
-        imageData.setName("ImageAltTagMissing.png");
-        FileUtils.forceMkdir(output);
-        java.io.File filePath = new java.io.File(output + "/ImageAltTagMissing" + captureWidth + ".png");
-        FileContent mediaContent = new FileContent("image/png", filePath);
-        com.google.api.services.drive.model.File imageFileUpload = driveService.files().create(imageData, mediaContent)
-                .setFields("id")
-                .execute();
-        System.out.println("Content ID: " + imageFileUpload.getWebContentLink());
-        System.out.println("View ID: " + imageFileUpload.getWebViewLink());
-        */
+        ImageIO.write(img, "png", new File(output + "/NonTextContext/" + captureWidth + ".png"));
+
       } catch (IOException e) {
         //                e.printStackTrace();
       }
@@ -81,7 +72,7 @@ public class NonTextContext implements IAccessibilityIssue {
   }
 
   @Override
-  public void checkIssue(Element element, HashMap<String, Element> otherElements, int width) {
+  public WebDriver checkIssue(Element element, HashMap<String, Element> otherElements, int width, WebDriver webDriver, ResponsiveLayoutGraph r, String fullUrl, ArrayList<Integer> breakpoints, HashMap<Integer, LayoutFactory> lFactories, int vmin, int vmax) {
     if (!element.getInHead()) {
 
       System.out.println("***** Non Text Context");
@@ -107,6 +98,7 @@ public class NonTextContext implements IAccessibilityIssue {
         }
       }
     }
+    return webDriver;
   }
 
   @Override

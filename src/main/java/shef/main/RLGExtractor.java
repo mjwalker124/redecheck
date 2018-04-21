@@ -372,6 +372,7 @@ public class RLGExtractor {
         //            System.out.println(s);
         try {
           String prettified = s;
+          //System.out.println(prettified);
           //                        CSSMutator.prettifyCss(s);
           StyleSheet temp = CSSFactory.parse(prettified);
           //                System.out.println(temp);
@@ -387,11 +388,11 @@ public class RLGExtractor {
             }
           }
         } catch (IOException e) {
-          //                    e.printStackTrace();
+                              e.printStackTrace();
         } catch (CSSException e) {
-          //                    e.printStackTrace();
+                              e.printStackTrace();
         } catch (NullPointerException e) {
-          //                    System.out.println("Null pointer for some reason on " + i);
+                             System.out.println("Null pointer for some reason on " + i);
         }
       }
     }
@@ -404,8 +405,9 @@ public class RLGExtractor {
       // Start the timer
       this.swf.getRlg().start();
 
-      webDriver = BrowserFactory.getNewDriver(browser);
-
+      if (webDriver == null) {
+        webDriver = BrowserFactory.getNewDriver(browser);
+      }
       JavascriptExecutor js = (JavascriptExecutor) webDriver;
       // Load up the webpage in the browser, using a pop-up to make sure we can resize down to 320
       // pixels wide

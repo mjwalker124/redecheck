@@ -295,9 +295,15 @@ public class Tool {
           //                    wdriver.manage().timeouts().implicitlyWait(sleep,
           // TimeUnit.MILLISECONDS);
           // System.out.println(scriptToExtract);
-          String extractedDom = extractDOM(wdriver, scriptToExtract);
-          String src = wdriver.getPageSource();
 
+          String extractedDom = extractDOM(wdriver, scriptToExtract);
+          //Thread.sleep(3000);
+          String src = "";
+          try {
+            src = wdriver.getPageSource();
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
           if (previous.equals(extractedDom)) {
 
             lFactories.put(w, new LayoutFactory(extractedDom, src));
@@ -318,7 +324,15 @@ public class Tool {
   }
 
   public static String extractDOM(WebDriver cdriver, String script) {
-    String output = (String) ((JavascriptExecutor) cdriver).executeScript(script);
+    String output = "";
+
+    try {
+    output = (String) ((JavascriptExecutor) cdriver).executeScript(script);
+
+    } catch(Exception e) {
+      e.printStackTrace();
+    }
+
     return output;
   }
 
@@ -355,6 +369,7 @@ public class Tool {
   }
 
   private void runFixer() {
+    try {
       scriptToExtract = Utils.readFile(current + "/../resources/webdiff2.js");
       String fullUrl;
       if (preamble != null) {
@@ -366,6 +381,9 @@ public class Tool {
 
       FaultPatcher patcher = new FaultPatcher(fullUrl, url, browser, current);
 
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   /**

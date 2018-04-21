@@ -41,7 +41,6 @@ public class AlignmentGraph {
     "S",
     "SCRIPT",
     "SMALL",
-    "SPAN",
     "STRIKE",
     "STRONG",
     "STYLE",

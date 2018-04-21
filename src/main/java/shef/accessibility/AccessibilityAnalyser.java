@@ -1,6 +1,7 @@
 package shef.accessibility;
 
 import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.reflections.Reflections;
 import shef.layout.Element;
@@ -56,12 +57,13 @@ public class AccessibilityAnalyser {
       for (IAccessibilityIssue issue : issues) {
         // For the layout loop through all elements and test
         // Only run tests if it is necessary.
-        if (issue.isAffectedByLayouts() || issue.numberOfTimesTested() == 0) {
+        if (issue.isAffectedByLayouts() || (!issue.isAffectedByLayouts() && issue.numberOfTimesTested() == 0 && key > 1000)) {
           for (Map.Entry<String, Element> elementEntry : elements.entrySet()) {
             String elementKey = elementEntry.getKey();
             Element element = elementEntry.getValue();
 
-            issue.checkIssue(element, elements, key);
+            driver.manage().window().setSize(new Dimension(key, driver.manage().window().getSize().height));
+            driver = issue.checkIssue(element, elements, key, driver, rlg, url, bpoints, layouts, vmin, vmax );
             issue.incNumberOfTimesTested();
           }
         }

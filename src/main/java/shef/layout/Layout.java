@@ -106,7 +106,7 @@ public class Layout {
       Integer pId = parentMap.get(x);
       Element p = elements.get(xpaths.get(pId));
       Element c = elements.get(xpaths.get(x));
-      if (p != null & c != null & !p.getInHead() & !c.getInHead()) {
+      if (p != null & c != null) {
         //                if (p.getXpath().equals("/HTML/BODY/SECTION[5]/DIV/DIV/DIV")) {
         //                    System.out.println("DIV contains " + c);
         //                }

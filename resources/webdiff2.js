@@ -213,7 +213,7 @@ function getCodePosition(node){
 
     var searchSpace = html.slice(0, html.indexOf(find));
     if ((searchSpace.match(/{new_line_delimiter}/g) || []).length == 0) {
-        console.log("Search string: " + find);
+        //console.log("Search string: " + find);
     }
     return (searchSpace.match(/{new_line_delimiter}/g) || []).length
 
@@ -231,9 +231,12 @@ function getForegroundColour(node) {
 }
 function getFontSize(node) {
     document.designMode = "on";
-    window.find(node.text);
-    var isAllBold = document.queryCommandState("Bold");
-	return (isAllBold ? parseInt(getStyle(node, "font-size")) + 6 : parseInt(getStyle(node, "font-size")) );
+    if (node.text !== "") {
+        //window.find(node.text);
+        var isAllBold = getStyle(node, 'fontWeight') === "bold";
+        return (isAllBold ? parseInt(getStyle(node, "font-size")) + 6 : parseInt(getStyle(node, "font-size")));
+    }
+    return 100;
 }
 /**
  * Helper function for getXPath
@@ -367,7 +370,7 @@ function getAlt(node) {
 	if (node.getAttribute('alt') === 'null') {
 		return '';
 	}
-	return "'" + node.getAttribute('alt') + "'";
+	return "'" + escape(node.getAttribute('alt')) + "'";
 }
 
 function getId(node) {
@@ -494,7 +497,7 @@ var html = document.documentElement.outerHTML;
 html = html.replace(/\n/g, "{new_line_delimiter}");
 html = html.replace(/\s/g, "");
 var numberOfLinesInDocument = (html.match(/{new_line_delimiter}/g) || []).length;
-console.log(html);
+//console.log(html);
 var data = '[';
 
 var nodes = Array();

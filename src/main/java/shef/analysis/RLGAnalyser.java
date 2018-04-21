@@ -1401,7 +1401,7 @@ public class RLGAnalyser {
     }
   }
 
-  private String errorToKey(ResponsiveLayoutFailure rle) {
+  public String errorToKey(ResponsiveLayoutFailure rle) {
     if (rle instanceof SmallRangeFailure) {
       return "SR";
     } else if (rle instanceof ViewportProtrusionFailure) {
@@ -1417,6 +1417,8 @@ public class RLGAnalyser {
     }
     return "NULL";
   }
+
+
 
   public ResponsiveLayoutGraph getRlg() {
     return rlg;

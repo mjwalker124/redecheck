@@ -79,7 +79,6 @@ public class WebpageMutator {
     "S",
     "SCRIPT",
     "SMALL",
-    "SPAN",
     "STRIKE",
     "STRONG",
     "STYLE",

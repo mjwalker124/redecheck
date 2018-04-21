@@ -42,7 +42,6 @@ public class ResultClassifier {
     "S",
     "SCRIPT",
     "SMALL",
-    "SPAN",
     "STRIKE",
     "STRONG",
     "STYLE",

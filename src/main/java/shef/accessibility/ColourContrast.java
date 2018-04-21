@@ -9,6 +9,7 @@ import shef.layout.Element;
 import shef.layout.LayoutFactory;
 import shef.main.RLGExtractor;
 import shef.main.Utils;
+import shef.rlg.ResponsiveLayoutGraph;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -19,10 +20,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ColourContrast implements IAccessibilityIssue {
 
-  private static List<Element> errors = new ArrayList<>();
+  private static HashMap<Integer, List<Element>> errors = new HashMap<>();
   public int[] coords;
   private String xpath;
   private Boolean didPass = true;
@@ -31,7 +33,7 @@ public class ColourContrast implements IAccessibilityIssue {
   private int width;
   private boolean cloudReportGenerated = false;
 
-  public static List<Element> getErrors() {
+  public static HashMap<Integer, List<Element>> getErrors() {
     return errors;
   }
 
@@ -39,54 +41,65 @@ public class ColourContrast implements IAccessibilityIssue {
   public void captureScreenshotExample(
       int errorID, String url, WebDriver webDriver, String fullurl, String timeStamp) {
     System.out.println("attempt screen shot");
-    try {
-      int captureWidth = width;
-      HashMap<Integer, LayoutFactory> lfs = new HashMap<>();
-
-      BufferedImage img;
-      img = RLGExtractor.getScreenshot(captureWidth, errorID, lfs, webDriver, url);
-
-      Graphics2D g2d = img.createGraphics();
-      for (Element e : ColourContrast.errors) {
-        g2d.setColor(Color.RED);
-        g2d.setStroke(new BasicStroke(3));
-        int coords[] = e.getBoundingCoords();
-        g2d.drawRect(coords[0], coords[1], coords[2] - coords[0], coords[3] - coords[1]);
-      }
-
-      g2d.dispose();
+    for (Map.Entry<Integer, List<Element>> elementEntry : errors.entrySet()) {
       try {
+        int captureWidth = elementEntry.getKey();
+        HashMap<Integer, LayoutFactory> lfs = new HashMap<>();
 
-        Drive driveService = CloudReporting.getDriveService();
-        File output = Utils.getOutputFilePath(url, timeStamp, errorID, true);
-        FileUtils.forceMkdir(output);
-        ImageIO.write(
-            img, "png", new File(output + "/ColourContrastIssues" + captureWidth + ".png"));
+        BufferedImage img;
+        img = RLGExtractor.getScreenshot(captureWidth, errorID, lfs, webDriver, url);
 
-        /*
-        com.google.api.services.drive.model.File imageData = new com.google.api.services.drive.model.File();
-        imageData.setName("ImageAltTagMissing.png");
-        FileUtils.forceMkdir(output);
-        java.io.File filePath = new java.io.File(output + "/ImageAltTagMissing" + captureWidth + ".png");
-        FileContent mediaContent = new FileContent("image/png", filePath);
-        com.google.api.services.drive.model.File imageFileUpload = driveService.files().create(imageData, mediaContent)
-                .setFields("id")
-                .execute();
-        System.out.println("Content ID: " + imageFileUpload.getWebContentLink());
-        System.out.println("View ID: " + imageFileUpload.getWebViewLink());
-        */
-      } catch (IOException e) {
-        //                e.printStackTrace();
+        Graphics2D g2d = img.createGraphics();
+        for (Element e : elementEntry.getValue()) {
+          g2d.setColor(Color.RED);
+          g2d.setStroke(new BasicStroke(3));
+          int coords[] = e.getBoundingCoords();
+          g2d.drawRect(coords[0], coords[1], coords[2] - coords[0], coords[3] - coords[1]);
+        }
+
+        g2d.dispose();
+        try {
+
+          Drive driveService = CloudReporting.getDriveService();
+          File output = Utils.getOutputFilePath(url, timeStamp, errorID, true);
+          FileUtils.forceMkdir(output);
+          Boolean makeFolders = new File(output + "/ColourContrastIssues").mkdir();
+          ImageIO.write(
+              img, "png", new File(output + "/ColourContrastIssues/" + captureWidth + ".png"));
+
+        } catch (IOException e) {
+          //                e.printStackTrace();
+        }
+      } catch (NullPointerException npe) {
+        npe.printStackTrace();
+        System.out.println("Could not find one of the offending elements in screenshot.");
       }
-    } catch (NullPointerException npe) {
-      npe.printStackTrace();
-      System.out.println("Could not find one of the offending elements in screenshot.");
     }
   }
 
+  private void addError(Element element, int width) {
+    if (ColourContrast.errors.get(width) == null) {
+        List<Element> elements = new ArrayList<>();
+        elements.add(element);
+        ColourContrast.errors.put(width, elements);
+    } else {
+        ColourContrast.errors.get(width).add(element);
+    }
+  }
+
+  private boolean shouldCheckError(Element element, int width) {
+      for(Map.Entry<Integer, List<Element>> elementEntry : ColourContrast.errors.entrySet()) {
+          if (elementEntry.getKey() > width - 150 && elementEntry.getKey() > width + 150 && elementEntry.getValue().contains(element)) {
+              return false;
+          }
+      }
+      return true;
+  }
+
   @Override
-  public void checkIssue(Element element, HashMap<String, Element> otherElements, int width) {
-    if (!element.getInHead()) {
+  public WebDriver checkIssue(Element element, HashMap<String, Element> otherElements, int width, WebDriver webDriver, ResponsiveLayoutGraph r, String fullUrl, ArrayList<Integer> breakpoints, HashMap<Integer, LayoutFactory> lFactories, int vmin, int vmax) {
+    this.width = width;
+    if (!element.getInHead() && shouldCheckError(element, width)) {
       Double backgroundLuminance = luminanceCalculator(element.getActualBackgroundColour());
       Double foregroundLuminance = luminanceCalculator(element.getActualForegroundColour());
 
@@ -95,7 +108,8 @@ public class ColourContrast implements IAccessibilityIssue {
           || (element.getFontSize() >= 24
               && luminanceContrast(backgroundLuminance, foregroundLuminance) < 3)
           && element.getFontSize() < 14) {
-        ColourContrast.errors.add(element);
+
+        addError(element, width);
         System.out.println("***** colour test");
 
         System.out.println("Node: " + element.getTag());
@@ -111,6 +125,7 @@ public class ColourContrast implements IAccessibilityIssue {
         System.out.println("---------");
       }
     }
+    return webDriver;
   }
 
   private Double luminanceCalculator(Double[] colour) {
@@ -164,9 +179,7 @@ public class ColourContrast implements IAccessibilityIssue {
         new StringBuilder(
             ColourContrast.errors.size()
                 + " foreground and background colours do not have enough contrast \n");
-    for (Element element : ColourContrast.errors) {
-      output.append(element.getXpath()).append(" \n");
-    }
+
 
     return output.toString();
   }
@@ -215,23 +228,25 @@ public class ColourContrast implements IAccessibilityIssue {
     rowDataList.add(null);
 
     int i = 1;
-    for (Element element : ColourContrast.errors) {
-      System.out.println(element.getXpath());
-      CellData cellData = new CellData();
-      cellData.setUserEnteredValue(new ExtendedValue().setStringValue(element.getXpath()));
+    for (Map.Entry<Integer, List<Element>> elementEntry : errors.entrySet()) {
+      for (Element element : elementEntry.getValue()) {
+        System.out.println(element.getXpath());
+        CellData cellData = new CellData();
+        cellData.setUserEnteredValue(new ExtendedValue().setStringValue(element.getXpath()));
 
-      CellData cellData2 = new CellData();
-      cellData2.setUserEnteredValue(new ExtendedValue().setStringValue(String.valueOf(i)));
+        CellData cellData2 = new CellData();
+        cellData2.setUserEnteredValue(new ExtendedValue().setStringValue(String.valueOf(i)));
 
-      List<CellData> row = new ArrayList<>();
-      row.add(cellData2);
-      row.add(cellData);
+        List<CellData> row = new ArrayList<>();
+        row.add(cellData2);
+        row.add(cellData);
 
-      RowData rowData = new RowData();
-      rowData.setValues(row);
+        RowData rowData = new RowData();
+        rowData.setValues(row);
 
-      rowDataList.add(rowData);
-      i++;
+        rowDataList.add(rowData);
+        i++;
+      }
     }
 
     grid.add((new GridData()).setRowData(rowDataList));

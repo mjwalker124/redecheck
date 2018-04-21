@@ -42,7 +42,7 @@ public class CommandLineParser {
   @Parameter(names = "--timingID", description = "iteration number for timing data")
   public int timingID;
   @Parameter(names = "--browser", description = "The browser to use for the test run")
-  public String browser = "firefox";
+  public String browser = "chrome";
   @Parameter(names = "--baselines", description = "Whether to run the baseline approaches")
   public boolean baselines;
   @Parameter(names = "--results", description = "Whether to process experimental results")

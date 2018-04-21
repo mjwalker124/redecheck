@@ -50,7 +50,6 @@ public class LayoutFactory {
     "S",
     "SCRIPT",
     "SMALL",
-    "SPAN",
     "STRIKE",
     "STRONG",
     "STYLE",
@@ -215,13 +214,15 @@ public class LayoutFactory {
     elements = new HashMap<>();
     codePositions = new HashMap<>();
     Rectangle r1 = null, r2 = null, r3 = null;
-    // System.out.println("buildRTree:"+dom);
+    System.out.println("buildRTree:"+dom);
     try {
+
       JSONArray arrDom = new JSONArray(dom.trim());
       int numElements = 0;
       for (int i = 0; i < arrDom.length(); i++) {
         JSONObject nodeData = arrDom.getJSONObject(i);
         Element e = getElementFromDomData(nodeData);
+
         if (e != null) {
           try {
             int[] coords = e.getBoundingCoords();
@@ -232,6 +233,7 @@ public class LayoutFactory {
               //                            System.out.println(contentCoords[0]);
               //                            e.setContentCoords(contentCoords);
               //                            e.setStyles(styles);
+
               rectangles.put(numElements, r);
               rtree.add(r, numElements);
               xpaths.put(numElements, e.getXpath());

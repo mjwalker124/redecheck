@@ -59,25 +59,27 @@ public class CollisionFailure extends ResponsiveLayoutFailure {
       // Capture the image and the DOM
       BufferedImage img =
               RLGExtractor.getScreenshot(captureWidth, errorID, lfs, webDriver, fullUrl);
+      try {
+        // Get the coordinates of the two colliding elements
+        LayoutFactory lf = lfs.get(captureWidth);
+        Element e1 = lf.getElementMap().get(constraint.getNode1().getXpath());
+        int[] coords1 = e1.getBoundingCoords();
+        Element e2 = lf.getElementMap().get(constraint.getNode2().getXpath());
+        int[] coords2 = e2.getBoundingCoords();
 
-      // Get the coordinates of the two colliding elements
-      LayoutFactory lf = lfs.get(captureWidth);
-      Element e1 = lf.getElementMap().get(constraint.getNode1().getXpath());
-      int[] coords1 = e1.getBoundingCoords();
-      Element e2 = lf.getElementMap().get(constraint.getNode2().getXpath());
-      int[] coords2 = e2.getBoundingCoords();
+        // Set up Graphics@d object so the elements can be highlighted
+        Graphics2D g2d = img.createGraphics();
 
-      // Set up Graphics@d object so the elements can be highlighted
-      Graphics2D g2d = img.createGraphics();
-
-      // Highlight the two elements in different colours
-      g2d.setColor(Color.RED);
-      g2d.setStroke(new BasicStroke(3));
-      g2d.drawRect(coords1[0], coords1[1], coords1[2] - coords1[0], coords1[3] - coords1[1]);
-      g2d.setColor(Color.CYAN);
-      g2d.drawRect(coords2[0], coords2[1], coords2[2] - coords2[0], coords2[3] - coords2[1]);
-      g2d.dispose();
-
+        // Highlight the two elements in different colours
+        g2d.setColor(Color.RED);
+        g2d.setStroke(new BasicStroke(3));
+        g2d.drawRect(coords1[0], coords1[1], coords1[2] - coords1[0], coords1[3] - coords1[1]);
+        g2d.setColor(Color.CYAN);
+        g2d.drawRect(coords2[0], coords2[1], coords2[2] - coords2[0], coords2[3] - coords2[1]);
+        g2d.dispose();
+      } catch(NullPointerException e) {
+        e.printStackTrace();
+      }
     return img;
   }
 

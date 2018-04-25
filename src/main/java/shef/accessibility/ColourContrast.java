@@ -116,14 +116,14 @@ public class ColourContrast implements IAccessibilityIssue {
       Double backgroundLuminance = luminanceCalculator(element.getActualBackgroundColour());
       Double foregroundLuminance = luminanceCalculator(element.getActualForegroundColour());
 
-      if ((element.getFontSize() < 24
+      if (!element.getText().equals("") && ((element.getFontSize() < 24
               && luminanceContrast(backgroundLuminance, foregroundLuminance) < 4.5)
           || (element.getFontSize() >= 24
-              && luminanceContrast(backgroundLuminance, foregroundLuminance) < 3)
-          && element.getFontSize() < 14) {
-
+              && luminanceContrast(backgroundLuminance, foregroundLuminance) < 3))) {
+        System.out.println(luminanceContrast(backgroundLuminance, foregroundLuminance));
         addError(element, width);
         System.out.println("***** colour test");
+        System.out.println(element.getText());
 
         System.out.println("Node: " + element.getTag());
         System.out.println("Colour String: " + element.getColourString());

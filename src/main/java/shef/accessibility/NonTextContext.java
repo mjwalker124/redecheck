@@ -24,6 +24,7 @@ import java.util.List;
 public class NonTextContext implements IAccessibilityIssue {
 
   private static List<Element> errors = new ArrayList<>();
+  private static List<Element> warnings = new ArrayList<>();
   private Boolean didPass = true;
   private int numberOfTimesTested = 0;
   private int width;
@@ -45,6 +46,14 @@ public class NonTextContext implements IAccessibilityIssue {
       img = RLGExtractor.getScreenshot(captureWidth, errorID, lfs, webDriver, url);
 
       Graphics2D g2d = img.createGraphics();
+
+      for (Element e : NonTextContext.warnings) {
+        g2d.setColor(Color.ORANGE);
+        g2d.setStroke(new BasicStroke(3));
+        int coords[] = e.getBoundingCoords();
+        g2d.drawRect(coords[0], coords[1], coords[2] - coords[0], coords[3] - coords[1]);
+      }
+
       for (Element e : NonTextContext.errors) {
         g2d.setColor(Color.RED);
         g2d.setStroke(new BasicStroke(3));
@@ -77,21 +86,26 @@ public class NonTextContext implements IAccessibilityIssue {
 
       System.out.println("***** Non Text Context");
       if (element.getTag().equalsIgnoreCase("img")) {
-        if (!element.hasAttribute("alt") || !element.hasAttribute("longdesc")) {
-          System.out.println("****** Warning *****");
-          System.out.println("Alt Required for images");
+        if (!(element.hasAttribute("aria-label") || element.hasAttribute("aria-labelledby"))) {
           NonTextContext.errors.add(element);
           this.width = width;
           didPass = false;
         } else {
-          System.out.println("***** Found ****");
-          System.out.println("Alt found");
-          System.out.println(element.getAttr("alt"));
           didPass = true;
         }
+        if (!(element.hasAttribute("alt") || element.hasAttribute("longdesc"))) {
+          NonTextContext.warnings.add(element);
+        }
       }
-      if (element.getTag().equalsIgnoreCase("button") || element.getTag().equalsIgnoreCase("input")) {
-        if (!element.hasAttribute("aria-label") || !element.hasAttribute("aria-labelledby")) {
+      if (element.getTag().equalsIgnoreCase("button") || element.getTag().equalsIgnoreCase("input") || element.getTag().equalsIgnoreCase("audio") || element.getTag().equalsIgnoreCase("embed")) {
+        if (element.getTag().equalsIgnoreCase("button")) {
+          if (!element.hasAttribute("data-message")) {
+            NonTextContext.errors.add(element);
+            this.width = width;
+            didPass = false;
+          }
+        }
+        if (!element.hasAttribute("aria-label") && !element.hasAttribute("aria-labelledby")) {
           NonTextContext.errors.add(element);
           this.width = width;
           didPass = false;

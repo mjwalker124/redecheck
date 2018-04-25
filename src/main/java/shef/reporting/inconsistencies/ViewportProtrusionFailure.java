@@ -1,6 +1,7 @@
 package shef.reporting.inconsistencies;
 
 import org.apache.commons.io.FileUtils;
+import org.mockito.internal.matchers.Null;
 import org.openqa.selenium.WebDriver;
 import shef.layout.Element;
 import shef.layout.LayoutFactory;
@@ -52,32 +53,38 @@ public class ViewportProtrusionFailure extends ResponsiveLayoutFailure {
   @Override
   public BufferedImage captureScreenShot(
           int errorID, WebDriver webDriver, String fullUrl) {
+
     int captureWidth = (min + max) / 2;
     HashMap<Integer, LayoutFactory> lfs = new HashMap<>();
 
     BufferedImage img;
+
     img = RLGExtractor.getScreenshot(captureWidth, errorID, lfs, webDriver, fullUrl);
-    LayoutFactory lf = lfs.get(captureWidth);
-    Element e1 = lf.getElementMap().get(node.getXpath());
-    Element body = lf.getElementMap().get("/HTML/BODY");
+    try {
+      LayoutFactory lf = lfs.get(captureWidth);
+      Element e1 = lf.getElementMap().get(node.getXpath());
+      Element body = lf.getElementMap().get("/HTML/BODY");
 
-    Graphics2D g2d = img.createGraphics();
-    g2d.setColor(Color.RED);
-    g2d.setStroke(new BasicStroke(3));
+      Graphics2D g2d = img.createGraphics();
+      g2d.setColor(Color.RED);
+      g2d.setStroke(new BasicStroke(3));
 
-    int[] coords = e1.getBoundingCoords();
-    //            System.out.println(e1.getXpath());
-    //            System.out.println(Arrays.toString(coords));
-    g2d.drawRect(coords[0], coords[1], coords[2] - coords[0], coords[3] - coords[1]);
+      int[] coords = e1.getBoundingCoords();
+      //            System.out.println(e1.getXpath());
+      //            System.out.println(Arrays.toString(coords));
+      g2d.drawRect(coords[0], coords[1], coords[2] - coords[0], coords[3] - coords[1]);
 
-    g2d.setColor(Color.GREEN);
-    //            g2d.setStroke(new BasicStroke(5, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL,
-    // 0, new float[]{9}, 0));
-    int[] coords2 = body.getBoundingCoords();
-    //            System.out.println(Arrays.toString(coords2));
-    g2d.drawRect(coords2[0], coords2[1], coords2[2] - coords2[0], coords2[3] - coords2[1]);
+      g2d.setColor(Color.GREEN);
+      //            g2d.setStroke(new BasicStroke(5, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL,
+      // 0, new float[]{9}, 0));
+      int[] coords2 = body.getBoundingCoords();
+      //            System.out.println(Arrays.toString(coords2));
+      g2d.drawRect(coords2[0], coords2[1], coords2[2] - coords2[0], coords2[3] - coords2[1]);
 
-    g2d.dispose();
+      g2d.dispose();
+    } catch(NullPointerException e) {
+      e.printStackTrace();
+    }
     return img;
   }
 

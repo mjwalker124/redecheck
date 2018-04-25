@@ -1,0 +1,23 @@
+<html>
+	<head>
+		<title>Test</title>
+	</head>
+
+	<body>
+		<h1>Form Tests</h1>
+		<h2>Fail (Nothing)</h2>
+		<input id="s" type="text" name="s">
+		<hr/>
+		<h2>Pass (Aria Label)</h2>
+		<input id="s" type="text" name="s" aria-label="Input Field">
+		<hr/>
+		<h2>Fail (Label For)</h2>
+		<label for="labelforfail">Label For:</label>
+		<input id="labelforfail" type="text" name="s">
+		<hr/>
+		<h2>Pass (Labelled by)</h2>
+		<label id="labelfor">Label For:</label>
+		<input type="text" name="s" aria-labelledby="labelfor">
+
+	</body>
+</html>

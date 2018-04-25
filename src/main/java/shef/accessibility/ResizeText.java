@@ -76,6 +76,7 @@ public class ResizeText implements IAccessibilityIssue {
         int i = 0;
         for(ResponsiveLayoutFailure responsiveLayoutFailure : ResizeText.responsiveLayoutFailures) {
             BufferedImage img = responsiveLayoutFailure.captureScreenShot(errorID,webDriver, fullurl);
+
             try {
                 File output = Utils.getOutputFilePath(url, timeStamp, errorID, true);
                 FileUtils.forceMkdir(output);

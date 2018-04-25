@@ -315,6 +315,8 @@ public class LayoutFactory {
                             obj.getInt("position_in_code"),
                             obj.getString("background_colour"),
                             obj.getString("foreground_colour"),
+                            obj.getBoolean("hasTabIndex"),
+                            obj.getString("text_value"),
                             obj.getInt("font_size"),
                             obj.getInt("document_height"),
                             obj.getInt("document_lines"),

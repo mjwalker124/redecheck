@@ -32,6 +32,8 @@ public class Element {
   private Integer documentHeight;
   private Integer documentLines;
   private Boolean inHead;
+  private String text;
+  private Boolean hasTabIndex;
 
   public Element(String x, int x1, int y1, int x2, int y2) {
     this.xpath = x;
@@ -49,6 +51,8 @@ public class Element {
       Integer lineNumber,
       String backgroundColour,
       String foregroundColour,
+      Boolean hasTabIndex,
+      String text,
       Integer fontSize,
       Integer documentHeight,
       Integer documentLines,
@@ -64,6 +68,8 @@ public class Element {
     this.obj = obj;
     this.x1 = x1;
     this.x2 = x2;
+    this.text = text;
+    this.hasTabIndex = hasTabIndex;
     this.y1 = y1;
     this.y2 = y2;
     this.inHead = inHead;
@@ -78,6 +84,10 @@ public class Element {
     this.boundingRectangle = new Rectangle(x1, y1, x2 - x1, y2 - y1);
   }
 
+  public Boolean hasTabIndex() {
+    return hasTabIndex;
+  }
+
   public Boolean getInHead() {
     return inHead;
   }
@@ -85,6 +95,8 @@ public class Element {
   public String getColourString() {
     return colourString;
   }
+
+  public String getText() { return text; }
 
   public Double[] getBackgroundColour() {
     return backgroundColour;

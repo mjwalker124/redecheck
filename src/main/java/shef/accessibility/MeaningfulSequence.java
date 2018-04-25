@@ -103,7 +103,11 @@ public class MeaningfulSequence implements IAccessibilityIssue {
   }
 
   private void addError(Integer width, Element e1, Element e2) {
-    List<Integer> storedWidths = xPathWidthStore.get(e1.getXpath() + e2.getXpath());
+    List<Integer> storedWidths = new ArrayList<>();
+
+    if (xPathWidthStore.containsKey(e1.getXpath() + e2.getXpath())) {
+      storedWidths = xPathWidthStore.get(e1.getXpath() + e2.getXpath());
+    }
     Boolean addElements = false;
     if (storedWidths.size() == 0) {
       addElements = true;
@@ -116,7 +120,9 @@ public class MeaningfulSequence implements IAccessibilityIssue {
     }
 
     if (addElements) {
+
       storedWidths.add(width);
+
       xPathWidthStore.put(e1.getXpath() + e2.getXpath(), storedWidths);
       HashMap<Element, Element> hashmap = errors.get(width);
       if (hashmap == null) {

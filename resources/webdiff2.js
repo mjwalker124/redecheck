@@ -382,23 +382,34 @@ function getId(node) {
 
 function getAriaLabelledBy(node) {
     if (node.getAttribute('aria-labelledby') === 'null') {
-        return '';
+        return "''";
     }
     return "'" + node.getAttribute('aria-labelledby') + "'";
 }
 
+function hasTabIndex(node) {
+	return node.hasAttribute('tabindex')
+}
+
 function getAriaLabel(node) {
     if (node.getAttribute('aria-label') === 'null') {
-        return '';
+        return "''";
     }
     return "'" + node.getAttribute('aria-label') + "'";
 }
 
 function getLongDesc(node) {
 	if (node.getAttribute('longdesc') === 'null') {
-		return '';
+		return "''";
 	}
     return "'" + node.getAttribute('longdesc') + "'";
+}
+
+function getTextContent(node) {
+	if (node.childNodes[0] !== undefined) {
+        return "'" + node.childNodes[0].nodeValue.trim() + "'";
+    }
+    return "''";
 }
 
 function getForAttribute(node) {
@@ -547,10 +558,12 @@ while(nodes.length > 0){
               c('document_lines', numberOfLinesInDocument),
 			  c('font_size', n, getFontSize),
 			  c('id', n, getId),
+			  c('hasTabIndex', n, hasTabIndex),
 			  c('aria-labelledby', n, getAriaLabelledBy),
 			  c('aria-label', n, getAriaLabel),
 			  c('longdesc', n, getLongDesc),
-			  c('for', n, getForAttribute)
+			  c('for', n, getForAttribute),
+			  c('text_value', n, getTextContent)
 			  // ,
 			  // c('styles', n, getAllStyles)
 		  ];

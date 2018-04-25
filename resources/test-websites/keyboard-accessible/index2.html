@@ -1,0 +1,26 @@
+<html>
+	<head>
+		<title>Test</title>
+	</head>
+
+	<body>
+		<p tabindex="0">All passes for keyboard accessibility</p>
+		<h1 tabindex="0">Title</h1>
+		<h2 tabindex="0">Blah</h2>
+		<img tabindex="0" src="http://via.placeholder.com/350x150">
+		<hr/>
+		<h2 tabindex="0">Blah</h2>
+		<img tabindex="0" src="http://via.placeholder.com/350x150" alt="place holder">
+		<hr/>
+		<h2 tabindex="0">Blah</h2>
+		<img tabindex="0" src="http://via.placeholder.com/350x150" alt="place holder" aria-label="place holder">
+		<hr/>
+		<h2>Force fail</h2>
+		<img tabindex="0" src="http://via.placeholder.com/350x150" alt="place holder" aria-labelledby="placeholder-label">
+		<p tabindex="0" id="placeholder-label">Test Label</p>
+		<hr/>
+		<h2 tabindex="0">Blah</h2>
+		<img tabindex="0" src="http://via.placeholder.com/350x150" aria-labelledby="image-label">
+		<p tabindex="0" id="image-label">Test Label</p>
+	</body>
+</html>

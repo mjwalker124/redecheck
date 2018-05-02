@@ -2,9 +2,7 @@ package shef.main;
 
 import com.google.api.services.drive.Drive;
 import com.google.api.services.sheets.v4.Sheets;
-import com.google.api.services.sheets.v4.model.Sheet;
-import com.google.api.services.sheets.v4.model.Spreadsheet;
-import com.google.api.services.sheets.v4.model.SpreadsheetProperties;
+import com.google.api.services.sheets.v4.model.*;
 import cz.vutbr.web.css.*;
 import edu.gatech.xpert.dom.DomNode;
 import org.apache.commons.io.FileUtils;
@@ -25,6 +23,7 @@ import shef.utils.StopwatchFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -414,7 +413,7 @@ public class RLGExtractor {
       String winHandleBefore = webDriver.getWindowHandle();
       webDriver.get(fullUrl);
       String externalJS = "";
-      if (!jsCommands.equals("")) {
+      if (jsCommands != null && !jsCommands.equals("")) {
         externalJS =
             StringEscapeUtils.escapeJava(new String(Files.readAllBytes(Paths.get(jsCommands))));
         System.out.println(externalJS.split("\r\n|\r|\n").length - 2);
@@ -505,6 +504,33 @@ public class RLGExtractor {
       accessibilityAnalyser.writeReport(shortUrl, accessibilityIssues, ts);
 
       List<Sheet> sheetReports = new ArrayList<>();
+
+      //Create Title Page
+      if (accessibilityIssues.size() > 0) {
+        Sheet sheet = new Sheet();
+        SheetProperties sheetProperties = new SheetProperties();
+        sheetProperties.setTitle("Accessibility Overview");
+        sheet.setProperties(sheetProperties);
+        List<GridData> grid = new ArrayList<>();
+        List<RowData> rowDataList = new ArrayList<>();
+
+        CellData rowTitle = Utils.generateCellData("Last updated", true);
+
+        CellData rowValue = Utils.generateCellData(ts);
+
+        List<CellData> titleRow = new ArrayList<>();
+        titleRow.add(rowTitle);
+        titleRow.add(rowValue);
+        rowDataList.add((new RowData()).setValues(titleRow));
+
+        for (IAccessibilityIssue issue : accessibilityIssues) {
+          rowDataList.addAll(issue.getOverviewRow());
+        }
+        grid.add((new GridData()).setRowData(rowDataList));
+        sheet.setData(grid);
+        sheetReports.add(sheet);
+      }
+
       if (accessibilityIssues.size() > 0) {
         for (IAccessibilityIssue issue : accessibilityIssues) {
           issue.captureScreenshotExample(
@@ -519,27 +545,49 @@ public class RLGExtractor {
       Drive driveService = CloudReporting.getDriveService();
       Spreadsheet sheet = new Spreadsheet();
       SpreadsheetProperties properties = new SpreadsheetProperties();
-      properties.setTitle("Accessibility Report");
+      properties.setTitle(shortUrl);
       sheet.setProperties(properties);
       sheet.setSheets(sheetReports);
 
+      //Remove previous sheets
+        String fileQueryParam ="name = '"+shortUrl+"' ";
+        com.google.api.services.drive.Drive.Files.List qryFile =    driveService.files().list().setFields("files(id, name)").setQ(fileQueryParam).setSpaces("drive");
+
+        com.google.api.services.drive.model.FileList gLstFile = qryFile.execute();
+        for (com.google.api.services.drive.model.File gFlFile : gLstFile.getFiles())
+        {
+            (driveService.files().delete(gFlFile.getId())).execute();
+        }
+
+
+
       Spreadsheet response = sheetsService.spreadsheets().create(sheet).execute();
 
-      com.google.api.services.drive.model.File fileMetadata =
-          new com.google.api.services.drive.model.File();
-      fileMetadata.setName(shortUrl + " - " + ts);
-      fileMetadata.setMimeType("application/vnd.google-apps.folder");
+      String queryParam ="name = 'ReDeCheck Accessibility' ";
+      com.google.api.services.drive.Drive.Files.List qry =    driveService.files().list().setFields("files(id, name)").setQ(queryParam).setSpaces("drive");
 
-      com.google.api.services.drive.model.File folderStore =
-          driveService.files().create(fileMetadata).setFields("id").execute();
+      com.google.api.services.drive.model.FileList gLst = qry.execute();
+      String id = "";
+      for (com.google.api.services.drive.model.File gFl : gLst.getFiles())
+      {
+        id = gFl.getId();
+        System.out.println("ID==>"+id);
+      }
 
-      com.google.api.services.drive.model.File imageStoreMetadata =
-          new com.google.api.services.drive.model.File();
-      imageStoreMetadata.setName("images");
-      imageStoreMetadata.setMimeType("application/vnd.google-apps.folder");
-      imageStoreMetadata.setParents(Arrays.asList(folderStore.getId()));
-      com.google.api.services.drive.model.File imageStore =
-          driveService.files().create(imageStoreMetadata).setFields("id").execute();
+
+
+        if (id.equals("")) {
+        com.google.api.services.drive.model.File fileMetadata =
+                new com.google.api.services.drive.model.File();
+        fileMetadata.setName("ReDeCheck Accessibility");
+        fileMetadata.setMimeType("application/vnd.google-apps.folder");
+
+        com.google.api.services.drive.model.File folderStore =
+                driveService.files().create(fileMetadata).setFields("id").execute();
+        id = folderStore.getId();
+
+      }
+
 
       com.google.api.services.drive.model.File file =
           driveService.files().get(response.getSpreadsheetId()).setFields("parents").execute();
@@ -553,7 +601,7 @@ public class RLGExtractor {
           driveService
               .files()
               .update(response.getSpreadsheetId(), null)
-              .setAddParents(folderStore.getId())
+              .setAddParents(id)
               .setRemoveParents(previousParents.toString())
               .setFields("id, parents")
               .execute();

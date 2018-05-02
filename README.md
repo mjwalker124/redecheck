@@ -5,6 +5,38 @@ Currently I am extending redecheck for my dissertation in order to be able to ru
 Example command to run from the target directory
 java -jar redecheck-jar-with-dependencies.jar --url [url for website] --instructions [file for js to run on page on load]
 
+I have left in the ReadMe from Tom Walsh the original creator or ReDeCheck as most of the general use of the system
+has not changed.
+
+# Modifications from the base ReDeCheck
+The majority of my additions are in the shef.accessibility.  The code in there has been written by me (Matthew Walker).
+I have modified other parts of the project, however that isn't usually large modifications.
+
+webdiff2.js contains quite a few changes, such as the addition of the line number grabber, it also now provides far more 
+information about each element than was previously stored.
+
+The main part I have modified outside of shef.accessibility is in the RLGExtractor from lines 504 to 608.
+
+I also added ways of getting the actual background, and foreground for an element.  This is to include the effect of 
+opacity on the colour contrast check.
+
+I have had to modify other parts of the system, but that was typically just to store more information on the elements 
+that had been read in by ReDeCheck. 
+
+I also added a way for instructions to be run on a page and added at the commandline.
+
+The google sheets api is now being used to storing all of the accessibility issues in a text format.  So when running 
+for the first time you will need to log in with your google account when the program has finished.
+
+The resources folder contains both the mac and linux drivers required to run ReDeCheck, in order to use it on a mac you 
+will need to add a .linux extension to the chromedriver, geckodriver, and phantomjs drivers, and then remove the .mac 
+extension from the ones which have it.
+
+Inside the resources folder there is now a folder which contains test websites.  These are labeled by the accessibility 
+issue they are made for checking.  These are the sites I tested against in my dissertation report.
+
+# ReadMe from Tom Walsh
+
 ReDeCheck (REsponsive DEsign CHECKer, pronounced “Ready Check”) is an automated tool designed to aid developers during
 the process of testing the layouts of responsive (i.e., "mobile ready") web sites. With the huge range of devices
 currently available, performing adequate quality assurance on a sufficient range of devices is extremely difficult, if

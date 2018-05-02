@@ -13,6 +13,7 @@ public class Element {
   String xpath;
   String tag;
   Integer lineNumber;
+  Integer documentPosition;
   JSONObject obj;
   String colourString;
   Double[] backgroundColour;
@@ -23,7 +24,7 @@ public class Element {
   int[] boundingCoords;
   int[] contentCoords;
   Element parent;
-  ArrayList<Element> children;
+  ArrayList<Element> children = new ArrayList<>();
   HashMap<String, String> styles;
   Rectangle boundingRectangle;
   Rectangle contentRectangle;
@@ -49,6 +50,7 @@ public class Element {
       String x,
       Boolean inHead,
       Integer lineNumber,
+      Integer codePosition,
       String backgroundColour,
       String foregroundColour,
       Boolean hasTabIndex,
@@ -74,7 +76,7 @@ public class Element {
     this.y2 = y2;
     this.inHead = inHead;
     this.fontSize = fontSize;
-    System.out.println("Font Size: " + fontSize);
+    //System.out.println("Font Size: " + fontSize);
     this.colourString = backgroundColour;
     this.backgroundColour = colourToArray(backgroundColour);
     this.foregroundColour = colourToArray(foregroundColour);
@@ -106,6 +108,7 @@ public class Element {
     this.backgroundColour = colourToArray(backgroundColour);
   }
 
+  //Developed by Matthew Walker
   public Double[] colourToArray(String colour) {
     Double[] colours = new Double[4];
     if (!inHead) {
@@ -145,17 +148,20 @@ public class Element {
     return colours;
   }
 
+  //Developed By Matthew Walker
   private Double[] getActualBackground() {
+      //Only do complicated stuff if the opacity isn't 100%
     if (backgroundColour[3] < 100) {
       Element parentElement = this.getParent();
       try {
+          //The parent will only be null at the top element so at that point the background for that element is just set
+          // to white, otherwise merge the actual background of the parent with the child.
         if (parentElement != null) {
           return mergeTwoColours(backgroundColour, this.getParent().getActualBackground());
         } else {
           return mergeTwoColours(backgroundColour, new Double[] {1.0, 1.0, 1.0, 1.0});
         }
       } catch(StackOverflowError ex) {
-        System.out.println(parentElement);
         return new Double[] {1.0, 1.0, 1.0, 1.0};
       }
     } else {
@@ -167,8 +173,9 @@ public class Element {
     return fontSize;
   }
 
+    //Developed By Matthew Walker
   private Double[] getActualForeground() {
-
+    //If there is some opacity then merge the foreground with the actual background colour
     if (foregroundColour[3] < 100) {
       return mergeTwoColours(foregroundColour, getActualBackgroundColour());
     } else {
@@ -176,6 +183,7 @@ public class Element {
     }
   }
 
+  //Developed By Matthew Walker using algorithm outlined https://stackoverflow.com/a/48343059
   private Double[] mergeTwoColours(Double[] colour1, Double[] colour2) {
     Double[] result = new Double[] {0.0, 0.0, 0.0, 0.0};
     Double colour1A = colour1[3];
@@ -197,6 +205,7 @@ public class Element {
     this.foregroundColour = colourToArray(foregroundColour);
   }
 
+    //Developed By Matthew Walker
   public Double[] getActualBackgroundColour() {
     if (actualBackgroundColour == null) {
       actualBackgroundColour = getActualBackground();
@@ -204,6 +213,7 @@ public class Element {
     return actualBackgroundColour;
   }
 
+    //Developed By Matthew Walker
   public Double[] getActualForegroundColour() {
     if (actualForegroundColour == null) {
       actualForegroundColour = getActualForeground();
@@ -257,12 +267,12 @@ public class Element {
 
   public boolean hasAttribute(String attr) {
     try {
-      System.out.println(obj);
+      //System.out.println(obj);
       String data = obj.getString(attr);
 
       return (data != null && !Objects.equals(data, "") && !Objects.equals(data, "null"));
     } catch (Exception e) {
-      System.out.println("Error while checking for " + attr + " attribute");
+      //System.out.println("Error while checking for " + attr + " attribute");
       e.printStackTrace();
     }
     return false;
@@ -272,7 +282,7 @@ public class Element {
     try {
       return obj.getString(attr);
     } catch (JSONException e) {
-      System.out.println("Error while getting " + attr + " attribute");
+      //System.out.println("Error while getting " + attr + " attribute");
       e.printStackTrace();
     }
 
@@ -289,6 +299,10 @@ public class Element {
 
   public void addChild(Element c) {
     this.children.add(c);
+  }
+
+  public ArrayList<Element> getChildren() {
+    return this.children;
   }
 
   public String toString() {

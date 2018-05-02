@@ -1,12 +1,10 @@
 package shef.accessibility;
 
-import com.google.api.services.drive.Drive;
-import com.google.api.services.sheets.v4.model.Sheet;
+import com.google.api.services.sheets.v4.model.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.openqa.selenium.*;
 import shef.analysis.RLGAnalyser;
-import shef.handlers.CloudReporting;
 import shef.layout.Element;
 import shef.layout.LayoutFactory;
 import shef.main.RLGExtractor;
@@ -16,6 +14,7 @@ import shef.rlg.ResponsiveLayoutGraph;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -40,6 +39,7 @@ public class ResizeText implements IAccessibilityIssue {
     @Override
     public void captureScreenshotExample(
             int errorID, String url, WebDriver webDriver, String fullurl, String timeStamp) {
+        // This generates one image with all of the issues highlighted on it
         try {
             int captureWidth = width;
             HashMap<Integer, LayoutFactory> lfs = new HashMap<>();
@@ -53,7 +53,6 @@ public class ResizeText implements IAccessibilityIssue {
                 g2d.setStroke(new BasicStroke(3));
                 int coords[] = e.getBoundingCoords();
                 g2d.drawRect(coords[0], coords[1], coords[2] - coords[0], coords[3] - coords[1]);
-                System.out.println("Draw " + e.getTag());
             }
 
             g2d.dispose();
@@ -74,6 +73,7 @@ public class ResizeText implements IAccessibilityIssue {
 
 
         int i = 0;
+        //This also stores all of the responsive layout failures caused by the text resize
         for(ResponsiveLayoutFailure responsiveLayoutFailure : ResizeText.responsiveLayoutFailures) {
             BufferedImage img = responsiveLayoutFailure.captureScreenShot(errorID,webDriver, fullurl);
 
@@ -93,7 +93,9 @@ public class ResizeText implements IAccessibilityIssue {
 
     @Override
     public WebDriver checkIssue(Element element, HashMap<String, Element> otherElements, int width, WebDriver webDriver, ResponsiveLayoutGraph r, String fullUrl, ArrayList<Integer> breakpoints, HashMap<Integer, LayoutFactory> lFactories, int vmin, int vmax) {
-        System.out.println("***** resize test");
+        // This forces the fontsize for the whole page to 200% this simulates browsers font size % setting
+        // It then checks to see if the font size has changed
+        // If the fontsize has changed then the website is tested with the rlganalyser.  This checks for layout issues
         this.width = width;
         WebElement htmlBaseElement = webDriver.findElement(By.tagName("html"));
         JavascriptExecutor js = (JavascriptExecutor) webDriver;
@@ -106,7 +108,6 @@ public class ResizeText implements IAccessibilityIssue {
             didPass = false;
             errors.add(element);
         } else {
-            System.out.println("Fontsize did change" + element.getTag());
             if (!testedResponsiveness ) {
                 RLGAnalyser analyser =
                     new RLGAnalyser(r, webDriver, fullUrl, breakpoints, lFactories, vmin, vmax);
@@ -125,8 +126,20 @@ public class ResizeText implements IAccessibilityIssue {
     }
 
     @Override
-    public boolean getDidPass() {
-        return didPass;
+    public List<RowData> getOverviewRow() {
+
+        List<RowData> rowDataList = new ArrayList<>();
+
+        CellData rowTitle = Utils.generateCellData("Number Of Text Elements which could not resize", true);
+
+        CellData rowValue = Utils.generateCellData(Integer.toString(errors.size()));
+
+        List<CellData> titleRow = new ArrayList<>();
+        titleRow.add(rowTitle);
+        titleRow.add(rowValue);
+        rowDataList.add((new RowData()).setValues(titleRow));
+
+        return rowDataList;
     }
 
     @Override
@@ -140,11 +153,6 @@ public class ResizeText implements IAccessibilityIssue {
 
     @Override
     public String getFixInstructions() {
-        return null;
-    }
-
-    @Override
-    public String consoleOutput() {
         return null;
     }
 
@@ -165,7 +173,56 @@ public class ResizeText implements IAccessibilityIssue {
 
     @Override
     public Sheet generateCloudReport() {
-        return null;
+        Sheet sheet = new Sheet();
+        SheetProperties sheetProperties = new SheetProperties();
+        sheetProperties.setTitle("Font Size Static Issues");
+        sheet.setProperties(sheetProperties);
+        List<GridData> grid = new ArrayList<>();
+        List<RowData> rowDataList = new ArrayList<>();
+
+        CellData pageTitle =  Utils.generateCellData("Font Size Static", true, true);
+
+        List<CellData> titleRow = new ArrayList<>();
+        titleRow.add(pageTitle);
+
+        CellData errorNumberTitle = Utils.generateCellData("ID", true);
+        CellData xPathTitle =  Utils.generateCellData("XPath", true);
+        CellData elementIDTitle =  Utils.generateCellData("Element ID", true);
+        CellData lineNumber =  Utils.generateCellData("Estimated Line Number", true);
+
+        List<CellData> headingRow = new ArrayList<>();
+        headingRow.add(errorNumberTitle);
+        headingRow.add(xPathTitle);
+        headingRow.add(elementIDTitle);
+        headingRow.add(lineNumber);
+
+        rowDataList.add((new RowData()).setValues(titleRow));
+        rowDataList.add((new RowData()).setValues(headingRow));
+        rowDataList.add(null);
+
+        int i = 1;
+        for (Element element : ResizeText.errors) {
+            CellData cellData = Utils.generateCellData(element.getXpath());
+            CellData cellData2 = Utils.generateCellData(String.valueOf(i));
+            CellData cellData3 = Utils.generateCellData(element.getAttr("id"));
+            CellData cellData4 = Utils.generateCellData(element.getLineNumber().toString());
+            List<CellData> row = new ArrayList<>();
+            row.add(cellData2);
+            row.add(cellData);
+            row.add(cellData3);
+            row.add(cellData4);
+
+            RowData rowData = new RowData();
+            rowData.setValues(row);
+
+            rowDataList.add(rowData);
+            i++;
+        }
+
+        grid.add((new GridData()).setRowData(rowDataList));
+        sheet.setData(grid);
+        cloudReportGenerated = true;
+        return sheet;
     }
 
     @Override

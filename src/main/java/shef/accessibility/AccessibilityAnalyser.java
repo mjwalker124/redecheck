@@ -26,6 +26,16 @@ public class AccessibilityAnalyser {
   HashMap<Integer, LayoutFactory> layouts;
   int vmin, vmax;
 
+  /**
+   * This is the basic initialisation for the AccessibilityAnalyser
+   * @param r               This is the responsive layout graph, it's passed in for if the RLGAnalyser is needed
+   * @param webDriver       This is the selenium web driver, this allows for control over the DOM and for standard selenium tests to be run
+   * @param fullUrl         This is the full url of the website being tested
+   * @param breakpoints     These are any breakpoints, these are only used if the RLGAnalyser is needed
+   * @param lFactories      These are the layout factories, these are only used if the RLGAnalyser is needed
+   * @param vmin            This is only used if the RLGAnalyser is needed
+   * @param vmax            This is only used if the RLGAnalyser is needed
+   */
   public AccessibilityAnalyser(
       ResponsiveLayoutGraph r,
       WebDriver webDriver,
@@ -38,7 +48,6 @@ public class AccessibilityAnalyser {
     driver = webDriver;
     url = fullUrl;
     bpoints = breakpoints;
-    //        System.out.println(bpoints);
     onePixelOverflows = new ArrayList<>();
     layouts = lFactories;
     this.vmin = vmin;
@@ -46,18 +55,30 @@ public class AccessibilityAnalyser {
     errors = new ArrayList<>();
   }
 
-  public List<IAccessibilityIssue> analyse() {
-    List<IAccessibilityIssue> issues = getAccessibilityIssues();
 
+    /**
+     * This loops through all of the layouts, and loops through all of the issues for each layout, it then checks if a
+     * check is needed, and then runs it on all of the elements
+     * @return This returns a list of all of the accessibility issue check classes, these will have all of the errors
+     * stored within them.
+     */
+  public List<IAccessibilityIssue> analyse() {
+    System.out.println("Start Accessibility Run");
+    List<IAccessibilityIssue> issues = getAccessibilityIssues();
+    int counter = 1;
     // Loop through all layouts generated
     for (Map.Entry<Integer, LayoutFactory> entry : layouts.entrySet()) {
+      System.out.println("Layout test : " + counter + "/" + layouts.size());
+      counter++;
       Integer key = entry.getKey();
       LayoutFactory factory = entry.getValue();
       HashMap<String, Element> elements = factory.layout.getElements();
       for (IAccessibilityIssue issue : issues) {
+
         // For the layout loop through all elements and test
         // Only run tests if it is necessary.
         if (issue.isAffectedByLayouts() || (!issue.isAffectedByLayouts() && issue.numberOfTimesTested() == 0 && key > 1000)) {
+          System.out.println(issue.getClass().getName() + " Width: " + key);
           for (Map.Entry<String, Element> elementEntry : elements.entrySet()) {
             String elementKey = elementEntry.getKey();
             Element element = elementEntry.getValue();
@@ -73,11 +94,13 @@ public class AccessibilityAnalyser {
     return issues;
   }
 
-  private int getNumberFromKey(String key, int i) {
-    String[] splits = key.split(":");
-    return Integer.valueOf(splits[i]);
-  }
 
+    /**
+     * This writes and stores a text report of all of the accessibility issues
+     * @param url       This is the url that is being tested
+     * @param issues    This is the list of issues which have been tested
+     * @param ts        This is the timestamp used within the report folder structure
+     */
   public void writeReport(String url, List<IAccessibilityIssue> issues, String ts) {
     PrintWriter output = null;
     PrintWriter output2 = null;
@@ -150,6 +173,12 @@ public class AccessibilityAnalyser {
     }
   }
 
+
+    /**
+     * This gets a list of accessibility issues which need to be tested.
+     * In order to do this I am using reflection.
+     * @return      A list of all of the accessibility issues inside shef.accessibility.
+     */
   private List<IAccessibilityIssue> getAccessibilityIssues() {
     List<IAccessibilityIssue> issues = new ArrayList<>();
     Reflections reflections = new Reflections("shef.accessibility");

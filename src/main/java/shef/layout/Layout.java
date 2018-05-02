@@ -116,6 +116,8 @@ public class Layout {
 
         ParentChild pc = new ParentChild(p, c);
         //                if (!flippedParent(pc)) {
+
+        p.addChild(c);
         c.setParent(p);
         relationships.put(pc.getKey(), pc);
 
@@ -160,6 +162,7 @@ public class Layout {
         new TIntProcedure() {
           @Override
           public boolean execute(int i) {
+
             if (i != elementId) {
               //                    if (elementId == 24 && i == 25) {
               //                        System.out.println(xpaths.get(elementId) + " contains!!! " +

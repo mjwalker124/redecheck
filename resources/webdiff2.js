@@ -39,7 +39,7 @@ var __isIEOld = __isIE && !__isIENew;
 
 var __isFireFox = __userAgent.match(/firefox/i) != null;
 var __isFireFoxOld = __isFireFox && ((__userAgent.match(/firefox\/2./i) != null) ||
-	(__userAgent.match(/firefox\/1./i) != null));
+    (__userAgent.match(/firefox\/1./i) != null));
 var __isFireFoxNew = __isFireFox && !__isFireFoxOld;
 
 var __isWebKit =  navigator.appVersion.match(/WebKit/) != null;
@@ -56,9 +56,9 @@ function __parseBorderWidth(width) {
             res = parseInt(width.substring(0, p));
         }
         else {
-     		//do not know how to calculate other values
-		//(such as 0.5em or 0.1cm) correctly now
-    		//so just set the width to 1 pixel
+            //do not know how to calculate other values
+            //(such as 0.5em or 0.1cm) correctly now
+            //so just set the width to 1 pixel
             res = 1;
         }
     }
@@ -67,101 +67,101 @@ function __parseBorderWidth(width) {
 
 //returns border width for some element
 function __getBorderWidth(element) {
-	var res = {};
-	res.left = 0; res.top = 0; res.right = 0; res.bottom = 0;
-	if (window.getComputedStyle) {
-		//for Firefox
-		var elStyle = window.getComputedStyle(element, null);
-		res.left = parseInt(elStyle.borderLeftWidth.slice(0, -2));
-		res.top = parseInt(elStyle.borderTopWidth.slice(0, -2));
-		res.right = parseInt(elStyle.borderRightWidth.slice(0, -2));
-		res.bottom = parseInt(elStyle.borderBottomWidth.slice(0, -2));
-	}
-	else {
-		//for other browsers
-		res.left = __parseBorderWidth(element.style.borderLeftWidth);
-		res.top = __parseBorderWidth(element.style.borderTopWidth);
-		res.right = __parseBorderWidth(element.style.borderRightWidth);
-		res.bottom = __parseBorderWidth(element.style.borderBottomWidth);
-	}
+    var res = {};
+    res.left = 0; res.top = 0; res.right = 0; res.bottom = 0;
+    if (window.getComputedStyle) {
+        //for Firefox
+        var elStyle = window.getComputedStyle(element, null);
+        res.left = parseInt(elStyle.borderLeftWidth.slice(0, -2));
+        res.top = parseInt(elStyle.borderTopWidth.slice(0, -2));
+        res.right = parseInt(elStyle.borderRightWidth.slice(0, -2));
+        res.bottom = parseInt(elStyle.borderBottomWidth.slice(0, -2));
+    }
+    else {
+        //for other browsers
+        res.left = __parseBorderWidth(element.style.borderLeftWidth);
+        res.top = __parseBorderWidth(element.style.borderTopWidth);
+        res.right = __parseBorderWidth(element.style.borderRightWidth);
+        res.bottom = __parseBorderWidth(element.style.borderBottomWidth);
+    }
 
-	return res;
+    return res;
 }
 
 //returns the absolute position of some element within document
 function getElementAbsolutePos(element) {
-	var res = {};
-	res.x = 0; res.y = 0;
-	if (element !== null) {
-		if (element.getBoundingClientRect) {
-			// var viewportElement = document.documentElement;
- 	        var box = element.getBoundingClientRect();
+    var res = {};
+    res.x = 0; res.y = 0;
+    if (element !== null) {
+        if (element.getBoundingClientRect) {
+            // var viewportElement = document.documentElement;
+            var box = element.getBoundingClientRect();
 
-		    // var scrollLeft = viewportElement.scrollLeft;
- 		   //  var scrollTop = viewportElement.scrollTop;
+            // var scrollLeft = viewportElement.scrollLeft;
+            //  var scrollTop = viewportElement.scrollTop;
 
-		    res.x = box.left;
-		     // + scrollLeft;
-		    res.y = box.top;
+            res.x = box.left;
+            // + scrollLeft;
+            res.y = box.top;
 
-			res.x2 = box.right;
-			res.y2 = box.bottom;
-		     // + scrollTop;
+            res.x2 = box.right;
+            res.y2 = box.bottom;
+            // + scrollTop;
 
-		}
-		else { //for old browsers
-			res.x = element.offsetLeft;
-			res.y = element.offsetTop;
+        }
+        else { //for old browsers
+            res.x = element.offsetLeft;
+            res.y = element.offsetTop;
 
-			var parentNode = element.parentNode;
-			var borderWidth = null;
+            var parentNode = element.parentNode;
+            var borderWidth = null;
 
-			while (offsetParent != null) {
-				res.x += offsetParent.offsetLeft;
-				res.y += offsetParent.offsetTop;
+            while (offsetParent != null) {
+                res.x += offsetParent.offsetLeft;
+                res.y += offsetParent.offsetTop;
 
-				var parentTagName =
-					offsetParent.tagName.toLowerCase();
+                var parentTagName =
+                    offsetParent.tagName.toLowerCase();
 
-				if ((__isIEOld && parentTagName != "table") ||
-					((__isFireFoxNew || __isChrome) &&
-						parentTagName == "td")) {
-					borderWidth = kGetBorderWidth
-							(offsetParent);
-					res.x += borderWidth.left;
-					res.y += borderWidth.top;
-				}
+                if ((__isIEOld && parentTagName != "table") ||
+                    ((__isFireFoxNew || __isChrome) &&
+                        parentTagName == "td")) {
+                    borderWidth = kGetBorderWidth
+                    (offsetParent);
+                    res.x += borderWidth.left;
+                    res.y += borderWidth.top;
+                }
 
-				if (offsetParent != document.body &&
-				offsetParent != document.documentElement) {
-					res.x -= offsetParent.scrollLeft;
-					res.y -= offsetParent.scrollTop;
-				}
+                if (offsetParent != document.body &&
+                    offsetParent != document.documentElement) {
+                    res.x -= offsetParent.scrollLeft;
+                    res.y -= offsetParent.scrollTop;
+                }
 
 
-				//next lines are necessary to fix the problem
-				//with offsetParent
-				if (!__isIE && !__isOperaOld || __isIENew) {
-					while (offsetParent != parentNode &&
-						parentNode !== null) {
-						res.x -= parentNode.scrollLeft;
-						res.y -= parentNode.scrollTop;
-						if (__isFireFoxOld || __isWebKit)
-						{
-						    borderWidth =
-						     kGetBorderWidth(parentNode);
-						    res.x += borderWidth.left;
-						    res.y += borderWidth.top;
-						}
-						parentNode = parentNode.parentNode;
-					}
-				}
+                //next lines are necessary to fix the problem
+                //with offsetParent
+                if (!__isIE && !__isOperaOld || __isIENew) {
+                    while (offsetParent != parentNode &&
+                    parentNode !== null) {
+                        res.x -= parentNode.scrollLeft;
+                        res.y -= parentNode.scrollTop;
+                        if (__isFireFoxOld || __isWebKit)
+                        {
+                            borderWidth =
+                                kGetBorderWidth(parentNode);
+                            res.x += borderWidth.left;
+                            res.y += borderWidth.top;
+                        }
+                        parentNode = parentNode.parentNode;
+                    }
+                }
 
-				parentNode = offsetParent.parentNode;
-				offsetParent = offsetParent.offsetParent;
-			}
-		}
-	}
+                parentNode = offsetParent.parentNode;
+                offsetParent = offsetParent.offsetParent;
+            }
+        }
+    }
     return res;
 }
 //END Absolute position code
@@ -171,17 +171,17 @@ function getElementAbsolutePos(element) {
  * Helper function to get an applied CSS style
  */
 function getStyle(oElm, strCssRule){
-	var strValue = "";
-	if(document.defaultView && document.defaultView.getComputedStyle && oElm.nodeName!="#comment"){
-		strValue = document.defaultView.getComputedStyle(oElm, "").getPropertyValue(strCssRule);
-		}
-	else if(oElm.currentStyle){
-		strCssRule = strCssRule.replace(/\-(\w)/g, function (strMatch, p1){
-			return p1.toUpperCase();
-		});
-		strValue = oElm.currentStyle[strCssRule];
-	}
-	return strValue;
+    var strValue = "";
+    if(document.defaultView && document.defaultView.getComputedStyle && oElm.nodeName!="#comment"){
+        strValue = document.defaultView.getComputedStyle(oElm, "").getPropertyValue(strCssRule);
+    }
+    else if(oElm.currentStyle){
+        strCssRule = strCssRule.replace(/\-(\w)/g, function (strMatch, p1){
+            return p1.toUpperCase();
+        });
+        strValue = oElm.currentStyle[strCssRule];
+    }
+    return strValue;
 }
 
 /**
@@ -193,10 +193,10 @@ function getXPath(node){
     var path = "";
     for (; node && node.nodeType == 1; node = node.parentNode)
     {
-  	var idx = getElementIdx(node);
-	var xname = node.tagName;
-	if (idx > 1) xname += "[" + idx + "]";
-	  path = "/" + xname + path;
+        var idx = getElementIdx(node);
+        var xname = node.tagName;
+        if (idx > 1) xname += "[" + idx + "]";
+        path = "/" + xname + path;
     }
 
     return path;
@@ -207,20 +207,23 @@ function getXPath(node){
  * @param node
  * @returns {Number}
  */
-function getCodePosition(node){
+function getLineNumber(node){
     var find = node.outerHTML.replace(/\n/g, "{new_line_delimiter}");
     find = find.replace(/\s/g, "");
 
     var searchSpace = html.slice(0, html.indexOf(find));
-    if ((searchSpace.match(/{new_line_delimiter}/g) || []).length == 0) {
-        //console.log("Search string: " + find);
-    }
-    return (searchSpace.match(/{new_line_delimiter}/g) || []).length
 
+    return (searchSpace.match(/{new_line_delimiter}/g) || []).length
+}
+
+function getCodePosition(node) {
+    var find = node.outerHTML.replace(/\n/g, "{new_line_delimiter}");
+    find = find.replace(/\s/g, "");
+    return html.indexOf(find);
 }
 
 function getTag(node) {
-	return node.tagName;
+    return node.tagName;
 }
 
 function getBackgroundColour(node) {
@@ -230,12 +233,14 @@ function getForegroundColour(node) {
     return '\"' + getStyle(node, "color") + '\"';
 }
 function getFontSize(node) {
+    // This adds 6 if the font is bold.  This is because that means that the colour contrast checker can just look at the
+    // font size rather than needing to handle the weight as well
     document.designMode = "on";
     if (node.text !== "") {
-        //window.find(node.text);
         var isAllBold = getStyle(node, 'fontWeight') === "bold";
         return (isAllBold ? parseInt(getStyle(node, "font-size")) + 6 : parseInt(getStyle(node, "font-size")));
     }
+    //This element doesn't have any text in it, just set the font size to be too big to matter
     return 100;
 }
 /**
@@ -250,172 +255,172 @@ function getElementIdx(node){
 }
 
 function getDOMCoords(node){
-	try{
-		var pos = getElementAbsolutePos(node);
-		//var x = Math.round(pos.x);
-		//var y = Math.round(pos.y);
-		// var boxes = node.getClientRects();
-		// console.log(boxes.length);
-		var x = pos.x;
-		var y = pos.y;
-		var x2 = pos.x2;
-		var y2 = pos.y2;
-		//return "["+[x, y, x+node.offsetWidth, y+node.offsetHeight]+"]";
-		return "["+[x, y, x2, y2]+"]";
-	}catch(e){
-	        return "["+[-1,-1,-1,-1]+"]";
-	}
+    try{
+        var pos = getElementAbsolutePos(node);
+        //var x = Math.round(pos.x);
+        //var y = Math.round(pos.y);
+        // var boxes = node.getClientRects();
+        // console.log(boxes.length);
+        var x = pos.x;
+        var y = pos.y;
+        var x2 = pos.x2;
+        var y2 = pos.y2;
+        //return "["+[x, y, x+node.offsetWidth, y+node.offsetHeight]+"]";
+        return "["+[x, y, x2, y2]+"]";
+    }catch(e){
+        return "["+[-1,-1,-1,-1]+"]";
+    }
 }
 
 function getContentRectangle(node){
-	try{
-		var pos = getElementAbsolutePos(node);
-		var win = document.defaultView || window, style, styleNode = [];
-		var cs = win.getComputedStyle(node, null);
+    try{
+        var pos = getElementAbsolutePos(node);
+        var win = document.defaultView || window, style, styleNode = [];
+        var cs = win.getComputedStyle(node, null);
 
-		// var paddingX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
-		// var paddingY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingButtom);
+        // var paddingX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+        // var paddingY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingButtom);
         //
-		// var borderX = parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth);
-		// var borderY = parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
+        // var borderX = parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth);
+        // var borderY = parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
 
-		// Element width and height minus padding and border
-		// elementWidth = element.offsetWidth - paddingX - borderX;
-		// elementHeight = element.offsetHeight - paddingY - borderY;
-		var contentX = pos.x + parseFloat(cs.paddingLeft) + parseFloat(cs.borderLeftWidth);
-		var contentY = pos.y + parseFloat(cs.paddingTop) + parseFloat(cs.borderTopWidth);
-		var contentX2 = pos.x2 - parseFloat(cs.paddingRight) - parseFloat(cs.borderRightWidth);
-		var contentY2 = pos.y2 - parseFloat(cs.paddingBottom) - parseFloat(cs.borderBottomWidth);
-		return "["+[contentX, contentY, contentX2, contentY2]+"]";
-	} catch(e){
-		return "["+[-1,-1,-1,-1]+"]";
-	}
+        // Element width and height minus padding and border
+        // elementWidth = element.offsetWidth - paddingX - borderX;
+        // elementHeight = element.offsetHeight - paddingY - borderY;
+        var contentX = pos.x + parseFloat(cs.paddingLeft) + parseFloat(cs.borderLeftWidth);
+        var contentY = pos.y + parseFloat(cs.paddingTop) + parseFloat(cs.borderTopWidth);
+        var contentX2 = pos.x2 - parseFloat(cs.paddingRight) - parseFloat(cs.borderRightWidth);
+        var contentY2 = pos.y2 - parseFloat(cs.paddingBottom) - parseFloat(cs.borderBottomWidth);
+        return "["+[contentX, contentY, contentX2, contentY2]+"]";
+    } catch(e){
+        return "["+[-1,-1,-1,-1]+"]";
+    }
 }
 
 function isClickable(node){
-	if(node.nodeType == 1){
-		if(node && node.attributes){
-			var attr = "";
-			if(node.getAttribute('onclick')){
-				return 1;
-			}
-		}
-	}
-	return 0;
+    if(node.nodeType == 1){
+        if(node && node.attributes){
+            var attr = "";
+            if(node.getAttribute('onclick')){
+                return 1;
+            }
+        }
+    }
+    return 0;
 }
 
 function isVisible(node){
-	if(node.nodeType!=1){
-		return 0;
-	}
-	else if(node.nodeType==1){
-		var style_opacity = getStyle(node,"opacity");
-		var style_visiblity = getStyle(node,"visibility");
-		var style_display = getStyle(node,"display");
-		var style_overflow = getStyle(node,"overflow");
-		//The check below is for IE
-		if(typeof(style_opacity)=='undefined'){
-			style_opacity = getStyle(node,"filter");
-			//Comes back with nothing since its a layout element
-			if(style_opacity.length==0){
-				style_opacity=100;
-			}
-			else{
-				style_opacity=style_opacity.substring((style_opacity.indexOf("=")+1),(style_opacity.length-1));
-			}
-		}
-		if((style_opacity!='0') && (style_visiblity != 'hidden') && (style_display != 'none') && (style_visiblity != 'collapse')){
-			return 1;
-		}
-		else{
-			return 0;
-		}
-	}
-	else{
-		return 0;
-	}
+    if(node.nodeType!=1){
+        return 0;
+    }
+    else if(node.nodeType==1){
+        var style_opacity = getStyle(node,"opacity");
+        var style_visiblity = getStyle(node,"visibility");
+        var style_display = getStyle(node,"display");
+        var style_overflow = getStyle(node,"overflow");
+        //The check below is for IE
+        if(typeof(style_opacity)=='undefined'){
+            style_opacity = getStyle(node,"filter");
+            //Comes back with nothing since its a layout element
+            if(style_opacity.length==0){
+                style_opacity=100;
+            }
+            else{
+                style_opacity=style_opacity.substring((style_opacity.indexOf("=")+1),(style_opacity.length-1));
+            }
+        }
+        if((style_opacity!='0') && (style_visiblity != 'hidden') && (style_display != 'none') && (style_visiblity != 'collapse')){
+            return 1;
+        }
+        else{
+            return 0;
+        }
+    }
+    else{
+        return 0;
+    }
 }
 
 function getOverflow(node){
-	if(node.nodeType!=1){
-		return 0;
-	}
-	else if(node.nodeType==1) {
-		var style_overflow = getStyle(node, "overflow");
-		if(style_overflow!='hidden') {
-			return 1;
-		} else {
-			return 0;
-		}
-	}
-	return 0;
+    if(node.nodeType!=1){
+        return 0;
+    }
+    else if(node.nodeType==1) {
+        var style_overflow = getStyle(node, "overflow");
+        if(style_overflow!='hidden') {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    return 0;
 }
 /**
  *
  * @param node
  */
 function getZIndex(node){
-	var style = getStyle(node,"z-index");
-	var zIndexVal;
-	if(style){
-		zIndexVal = parseInt(style);
-		if(isNaN(zIndexVal)){
-			zIndexVal = 0;
-		}
-	}
-	return zIndexVal;
+    var style = getStyle(node,"z-index");
+    var zIndexVal;
+    if(style){
+        zIndexVal = parseInt(style);
+        if(isNaN(zIndexVal)){
+            zIndexVal = 0;
+        }
+    }
+    return zIndexVal;
 }
 
 function getAlt(node) {
-	if (node.getAttribute('alt') === 'null') {
-		return '';
-	}
-	return "'" + escape(node.getAttribute('alt')) + "'";
+    if (node.getAttribute('alt') === 'null') {
+        return '';
+    }
+    return "'" + escape(node.getAttribute('alt')) + "'";
 }
 
 function getId(node) {
     if (node.getAttribute('id') === 'null') {
         return '';
     }
-    return "'" + node.getAttribute('id') + "'";
+    return "'" + escape(node.getAttribute('id')) + "'";
 }
 
 function getAriaLabelledBy(node) {
     if (node.getAttribute('aria-labelledby') === 'null') {
         return "''";
     }
-    return "'" + node.getAttribute('aria-labelledby') + "'";
+    return "'" + escape(node.getAttribute('aria-labelledby')) + "'";
 }
 
 function hasTabIndex(node) {
-	return node.hasAttribute('tabindex')
+    return node.hasAttribute('tabindex')
 }
 
 function getAriaLabel(node) {
     if (node.getAttribute('aria-label') === 'null') {
         return "''";
     }
-    return "'" + node.getAttribute('aria-label') + "'";
+    return "'" + escape(node.getAttribute('aria-label')) + "'";
 }
 
 function getLongDesc(node) {
-	if (node.getAttribute('longdesc') === 'null') {
-		return "''";
-	}
-    return "'" + node.getAttribute('longdesc') + "'";
+    if (node.getAttribute('longdesc') === 'null') {
+        return "''";
+    }
+    return "'" + escape(node.getAttribute('longdesc')) + "'";
 }
 
 function getTextContent(node) {
-	if (node.childNodes[0] !== undefined) {
-        return "'" + node.childNodes[0].nodeValue.trim() + "'";
+    if (node.childNodes[0] !== undefined && node.childNodes[0].nodeValue !== null) {
+        return "'" + escape(node.childNodes[0].nodeValue.trim()) + "'";
     }
     return "''";
 }
 
 function getForAttribute(node) {
-	if (node.getAttribute('for') === 'null') {
-		return '';
-	}
+    if (node.getAttribute('for') === 'null') {
+        return '';
+    }
     return "'" + node.getAttribute('for') + "'";
 }
 
@@ -427,70 +432,70 @@ function getForAttribute(node) {
  * @param func Optional function to be applied to value
  */
 function c(key, value, func, enclose){
-  if(func && value) value = func.apply(null, [value]);
-  if(value == undefined || value === '') return;
-  if(enclose) return key + ":'" + value+"'";
-  return key + ':' + value;
+    if(func && value) value = func.apply(null, [value]);
+    if(value == undefined || value === '') return;
+    if(enclose) return key + ":'" + value+"'";
+    return key + ':' + value;
 }
 
 function getAttributes(attr){
-	if(attr){
-		var data = "{";
-		for(var i=0;i<attr.length;i++){
-			var at = attr[i];
-			if(at.specified){
-				var key = at.name;
-				var val = encodeURIComponent(at.value);
-				if(key.match(/[\w]+/)){
-					data+="'"+key+"':'"+val.replace(/'/g,"\\'")+"',";
-				}
-			}
-		}
-		if(data.charAt(data.length-1) == ','){
-			return data.substr(0, data.length-1)+'}';
-		}
-	}
-	return "{}";
+    if(attr){
+        var data = "{";
+        for(var i=0;i<attr.length;i++){
+            var at = attr[i];
+            if(at.specified){
+                var key = at.name;
+                var val = encodeURIComponent(at.value);
+                if(key.match(/[\w]+/)){
+                    data+="'"+key+"':'"+val.replace(/'/g,"\\'")+"',";
+                }
+            }
+        }
+        if(data.charAt(data.length-1) == ','){
+            return data.substr(0, data.length-1)+'}';
+        }
+    }
+    return "{}";
 }
 
 
 
 function getNodeValue(node){
-	if(node){
-		var val = encodeURIComponent(node.nodeValue);
-		return "'"+val.replace(/'/g,"\\'")+"'";
-	}
-	
+    if(node){
+        var val = encodeURIComponent(node.nodeValue);
+        return "'"+val.replace(/'/g,"\\'")+"'";
+    }
+
 }
 
 
 function getAllStyles(elem) {
-	if (!elem) return []; // Element does not exist, empty list.
-	var win = document.defaultView || window, style, styleNode = [];
-	var styles = "{";
+    if (!elem) return []; // Element does not exist, empty list.
+    var win = document.defaultView || window, style, styleNode = [];
+    var styles = "{";
 
-	if (win.getComputedStyle) { /* Modern browsers */
-		style = win.getComputedStyle(elem, null);
-		for (var i=0; i<style.length; i++) {
-			styles += "'" + style[i] + "':'" + style.getPropertyValue(style[i]).replace(",", "") + "',";
-		}
-		if(styles.charAt(styles.length-1) == ','){
-			return styles.substr(0, styles.length-1)+'}';
-		}
-	} else if (elem.currentStyle) { /* IE */
-		style = elem.currentStyle;
-		for (var name in style) {
-			styleNode.push( name + ':' + style[name] );
-			styles += style[i] + ':' + style[name];
-		}
-	} else { /* Ancient browser..*/
-		style = elem.style;
-		for (var i=0; i<style.length; i++) {
-			styleNode.push( style[i] + ':' + style[style[i]] );
-			styles += style[i] + ':' + style[style[i]];
-		}
-	}
-	return "{}";
+    if (win.getComputedStyle) { /* Modern browsers */
+        style = win.getComputedStyle(elem, null);
+        for (var i=0; i<style.length; i++) {
+            styles += "'" + style[i] + "':'" + style.getPropertyValue(style[i]).replace(",", "") + "',";
+        }
+        if(styles.charAt(styles.length-1) == ','){
+            return styles.substr(0, styles.length-1)+'}';
+        }
+    } else if (elem.currentStyle) { /* IE */
+        style = elem.currentStyle;
+        for (var name in style) {
+            styleNode.push( name + ':' + style[name] );
+            styles += style[i] + ':' + style[name];
+        }
+    } else { /* Ancient browser..*/
+        style = elem.style;
+        for (var i=0; i<style.length; i++) {
+            styleNode.push( style[i] + ':' + style[style[i]] );
+            styles += style[i] + ':' + style[style[i]];
+        }
+    }
+    return "{}";
 }
 
 
@@ -516,13 +521,13 @@ var nodeCtr=0;
 
 var maxHeight = 0;
 
-var toIgnore = ["A", "I", "G", "PATH", "AREA", "B", "BLOCKQUOTE",
-	"BR", "CANVAS", "CENTER", "CSACTIONDICT", "CSSCRIPTDICT", "CUFON",
-	"CUFONTEXT", "DD", "EM", "EMBED", "FIELDSET", "FONT",
-	"HR", "IFRAME", "INS", "LEGEND", "LINK", "MAP", "MENUMACHINE",
-	"META", "NOFRAMES", "NOSCRIPT", "OBJECT", "OPTGROUP", "OPTION",
-	"PARAM", "S", "SCRIPT", "SMALL", "STRIKE", "STRONG",
-	"STYLE", "TT", "U"];
+var toIgnore = ["I", "G", "PATH", "AREA", "B", "BLOCKQUOTE",
+    "BR", "CANVAS", "CENTER", "CSACTIONDICT", "CSSCRIPTDICT", "CUFON",
+    "CUFONTEXT", "DD", "EM", "EMBED", "FIELDSET", "FONT",
+    "HR", "IFRAME", "INS", "LEGEND", "LINK", "MAP", "MENUMACHINE",
+    "META", "NOFRAMES", "NOSCRIPT", "OBJECT", "OPTGROUP", "OPTION",
+    "PARAM", "S", "SCRIPT", "SMALL", "STRIKE", "STRONG",
+    "STYLE", "TT", "U"];
 
 //Process body nodes
 var heads = document.getElementsByTagName("head");
@@ -535,70 +540,71 @@ nodes.push([document.body]);
 var height = document.documentElement.scrollHeight;
 
 while(nodes.length > 0){
-  //process node
-  var t = nodes.pop(), n = t[0], pid=t[1];
-	//console.log(getXPath(n));
-  var nodeid = nodeCtr++;
-  if(n.nodeName && n.nodeName == "#text"){
-  }else if (toIgnore.indexOf(n.nodeName) == -1) {
-	  // if (isVisible(n) === 1) {
-		  var arr = [c('type',1),
-			  c('nodeid', nodeid),
-			  c('pid', pid),
-			  c('xpath', n, getXPath, true),
-              c('position_in_code', n, getCodePosition),
-			  c('visible', n, isVisible),
-			  c('overflow', n, getOverflow),
-			  c('coord', n, getDOMCoords),
-			  c('alt', n, getAlt),
-			  c('tag', n, getTag),
-              c('background_colour', n, getBackgroundColour),
-              c('foreground_colour', n, getForegroundColour),
-              c('document_height', height),
-              c('document_lines', numberOfLinesInDocument),
-			  c('font_size', n, getFontSize),
-			  c('id', n, getId),
-			  c('hasTabIndex', n, hasTabIndex),
-			  c('aria-labelledby', n, getAriaLabelledBy),
-			  c('aria-label', n, getAriaLabel),
-			  c('longdesc', n, getLongDesc),
-			  c('for', n, getForAttribute),
-			  c('text_value', n, getTextContent)
-			  // ,
-			  // c('styles', n, getAllStyles)
-		  ];
+    //process node
+    var t = nodes.pop(), n = t[0], pid=t[1];
+    //console.log(getXPath(n));
+    var nodeid = nodeCtr++;
+    if(n.nodeName && n.nodeName == "#text"){
+    }else if (toIgnore.indexOf(n.nodeName) == -1) {
+        // if (isVisible(n) === 1) {
+        var arr = [c('type',1),
+            c('nodeid', nodeid),
+            c('pid', pid),
+            c('xpath', n, getXPath, true),
+            c('line_number', n, getLineNumber),
+            c('position_in_code', n, getCodePosition),
+            c('visible', n, isVisible),
+            c('overflow', n, getOverflow),
+            c('coord', n, getDOMCoords),
+            c('alt', n, getAlt),
+            c('tag', n, getTag),
+            c('background_colour', n, getBackgroundColour),
+            c('foreground_colour', n, getForegroundColour),
+            c('document_height', height),
+            c('document_lines', numberOfLinesInDocument),
+            c('font_size', n, getFontSize),
+            c('id', n, getId),
+            c('hasTabIndex', n, hasTabIndex),
+            c('aria-labelledby', n, getAriaLabelledBy),
+            c('aria-label', n, getAriaLabel),
+            c('longdesc', n, getLongDesc),
+            c('for', n, getForAttribute),
+            c('text_value', n, getTextContent)
+            // ,
+            // c('styles', n, getAllStyles)
+        ];
 
 
-		  //filter out & add to data
-		  var filtered = [];
-		  for(var i in arr){
-			  if(typeof arr[i] == "string"){
-				  filtered.push(arr[i]);
-			  }
-		  }
-		  data += 	'{'+ filtered.toString()+'},';
-	  // }
+        //filter out & add to data
+        var filtered = [];
+        for(var i in arr){
+            if(typeof arr[i] == "string"){
+                filtered.push(arr[i]);
+            }
+        }
+        data += 	'{'+ filtered.toString()+'},';
+        // }
 
-  }
-
-
-  //push children
-  var cs = n.childNodes;
-
-  for(var ch in cs){
-    var child = cs[ch];
-    if(child){
-    	var nn = child.nodeName;
-    	if(nn && nn != "#comment" && nn.charAt(0) != '/'){
-    		nodes.push([child,nodeid]);
-		}else if (toIgnore.indexOf(nn) != -1) {
-
-			if (child.children.length > 0) {
-				nodes.push([child, nodeid]);
-			}
-		}
     }
-  }
+
+
+    //push children
+    var cs = n.childNodes;
+
+    for(var ch in cs){
+        var child = cs[ch];
+        if(child){
+            var nn = child.nodeName;
+            if(nn && nn != "#comment" && nn.charAt(0) != '/'){
+                nodes.push([child,nodeid]);
+            }else if (toIgnore.indexOf(nn) != -1) {
+
+                if (child.children.length > 0) {
+                    nodes.push([child, nodeid]);
+                }
+            }
+        }
+    }
 }
 
 

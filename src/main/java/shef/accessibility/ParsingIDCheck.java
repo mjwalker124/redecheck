@@ -1,7 +1,7 @@
 package shef.accessibility;
 
 import com.google.api.services.drive.Drive;
-import com.google.api.services.sheets.v4.model.Sheet;
+import com.google.api.services.sheets.v4.model.*;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.WebDriver;
 import shef.handlers.CloudReporting;
@@ -13,6 +13,7 @@ import shef.rlg.ResponsiveLayoutGraph;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +37,7 @@ public class ParsingIDCheck implements IAccessibilityIssue {
   @Override
   public void captureScreenshotExample(
       int errorID, String url, WebDriver webDriver, String fullurl, String timeStamp) {
-    System.out.println("attempt screen shot");
+    // This generates one image and draws all of the errors on it.
     try {
       int captureWidth = width;
       HashMap<Integer, LayoutFactory> lfs = new HashMap<>();
@@ -55,8 +56,6 @@ public class ParsingIDCheck implements IAccessibilityIssue {
 
       g2d.dispose();
       try {
-
-        Drive driveService = CloudReporting.getDriveService();
         File output = Utils.getOutputFilePath(url, timeStamp, errorID, true);
         FileUtils.forceMkdir(output);
         Boolean makeFolders = new File(output + "/ParsingIDCheck").mkdir();
@@ -76,7 +75,6 @@ public class ParsingIDCheck implements IAccessibilityIssue {
   public WebDriver checkIssue(Element element, HashMap<String, Element> otherElements, int width, WebDriver webDriver, ResponsiveLayoutGraph r, String fullUrl, ArrayList<Integer> breakpoints, HashMap<Integer, LayoutFactory> lFactories, int vmin, int vmax) {
     if (!element.getInHead()) {
       this.width = width;
-      System.out.println("***** parsing id check" );
       if (!element.getAttr("id").equals("null")) {
         String elementId = element.getAttr("id");
         if (ids.get(elementId) != null) {
@@ -92,12 +90,7 @@ public class ParsingIDCheck implements IAccessibilityIssue {
     return webDriver;
   }
 
-  @Override
-  public boolean getDidPass() {
-    return didPass;
-  }
-
-  @Override
+    @Override
   public String getErrorMessage() {
     if (didPass) {
       return "No Error with the title";
@@ -107,16 +100,28 @@ public class ParsingIDCheck implements IAccessibilityIssue {
   }
 
   @Override
+  public List<RowData> getOverviewRow() {
+
+    List<RowData> rowDataList = new ArrayList<>();
+
+    CellData rowTitle = Utils.generateCellData("Number Of Elements with repeating IDs:", true);
+
+    CellData rowValue = Utils.generateCellData(Integer.toString(errors.size()));
+
+    List<CellData> titleRow = new ArrayList<>();
+    titleRow.add(rowTitle);
+    titleRow.add(rowValue);
+    rowDataList.add((new RowData()).setValues(titleRow));
+
+    return rowDataList;
+  }
+
+  @Override
   public String getFixInstructions() {
     return null;
   }
 
-  @Override
-  public String consoleOutput() {
-    return null;
-  }
-
-  @Override
+    @Override
   public boolean isAffectedByLayouts() {
     return false;
   }
@@ -133,7 +138,56 @@ public class ParsingIDCheck implements IAccessibilityIssue {
 
   @Override
   public Sheet generateCloudReport() {
-    return null;
+      Sheet sheet = new Sheet();
+      SheetProperties sheetProperties = new SheetProperties();
+      sheetProperties.setTitle("Repeated ID Use");
+      sheet.setProperties(sheetProperties);
+      List<GridData> grid = new ArrayList<>();
+      List<RowData> rowDataList = new ArrayList<>();
+
+      CellData pageTitle =  Utils.generateCellData("Repeated ID Use", true, true);
+
+      List<CellData> titleRow = new ArrayList<>();
+      titleRow.add(pageTitle);
+
+      CellData errorNumberTitle = Utils.generateCellData("ID", true);
+      CellData xPathTitle =  Utils.generateCellData("XPath", true);
+      CellData elementIDTitle =  Utils.generateCellData("Element ID", true);
+      CellData lineNumber =  Utils.generateCellData("Estimated Line Number", true);
+
+      List<CellData> headingRow = new ArrayList<>();
+      headingRow.add(errorNumberTitle);
+      headingRow.add(xPathTitle);
+      headingRow.add(elementIDTitle);
+      headingRow.add(lineNumber);
+
+      rowDataList.add((new RowData()).setValues(titleRow));
+      rowDataList.add((new RowData()).setValues(headingRow));
+      rowDataList.add(null);
+
+      int i = 1;
+      for (Element element : ParsingIDCheck.errors) {
+          CellData cellData = Utils.generateCellData(element.getXpath());
+          CellData cellData2 = Utils.generateCellData(String.valueOf(i));
+          CellData cellData3 = Utils.generateCellData(element.getAttr("id"));
+          CellData cellData4 = Utils.generateCellData(element.getLineNumber().toString());
+          List<CellData> row = new ArrayList<>();
+          row.add(cellData2);
+          row.add(cellData);
+          row.add(cellData3);
+          row.add(cellData4);
+
+          RowData rowData = new RowData();
+          rowData.setValues(row);
+
+          rowDataList.add(rowData);
+          i++;
+      }
+
+      grid.add((new GridData()).setRowData(rowDataList));
+      sheet.setData(grid);
+      cloudReportGenerated = true;
+      return sheet;
   }
 
   @Override

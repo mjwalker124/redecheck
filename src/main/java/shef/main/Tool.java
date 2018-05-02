@@ -185,7 +185,7 @@ public class Tool {
       } else {
         fullUrl = url;
       }
-      System.out.println(fullUrl);
+      //System.out.println(fullUrl);
       // System.out.println("I've modified the code");
       RLGExtractor extractor =
           new RLGExtractor(
@@ -328,7 +328,7 @@ public class Tool {
 
     try {
     output = (String) ((JavascriptExecutor) cdriver).executeScript(script);
-
+    //System.out.println(output);
     } catch(Exception e) {
       e.printStackTrace();
     }
@@ -347,7 +347,7 @@ public class Tool {
       outFolder = directory + webpage + "/";
 
       File dir = new File(outFolder + fileName + ".txt");
-      System.out.println(dir.toString());
+      //System.out.println(dir.toString());
       output = new PrintWriter(dir);
       output.append(content);
       output.close();
@@ -377,7 +377,7 @@ public class Tool {
       } else {
         fullUrl = url;
       }
-      System.out.println(fullUrl);
+      //System.out.println(fullUrl);
 
       FaultPatcher patcher = new FaultPatcher(fullUrl, url, browser, current);
 
@@ -444,7 +444,7 @@ public class Tool {
     rlg1.extract();
     rlg2.extract();
 
-    System.out.println(oFactories.size() == tFactories.size());
+    //System.out.println(oFactories.size() == tFactories.size());
     for (Integer i : tFactories.keySet()) {
       System.out.println(i);
     }

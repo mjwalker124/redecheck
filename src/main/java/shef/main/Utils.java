@@ -1,5 +1,6 @@
 package shef.main;
 
+import com.google.api.services.sheets.v4.model.*;
 import org.apache.commons.io.IOUtils;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
@@ -206,4 +207,33 @@ public class Utils {
     }
     return output;
   }
+
+  public static CellData generateCellData(String value) {
+    CellData cellData = new CellData();
+    cellData.setUserEnteredValue(new ExtendedValue().setStringValue(value));
+    cellData.setUserEnteredFormat(new CellFormat());
+    return cellData;
+  }
+
+  public static CellData generateCellData(String value, Boolean bold) {
+    CellData cellData = new CellData();
+    cellData.setUserEnteredValue(new ExtendedValue().setStringValue(value));
+    cellData.setUserEnteredFormat(new CellFormat().setTextFormat(new TextFormat().setBold(bold)));
+    return cellData;
+  }
+
+  public static CellData generateCellData(String value, Boolean bold, Boolean large) {
+    CellData cellData = new CellData();
+    cellData.setUserEnteredValue(new ExtendedValue().setStringValue(value));
+    cellData.setUserEnteredFormat(new CellFormat().setTextFormat(new TextFormat().setBold(bold).setFontSize((large ? 20 : 10))));
+    return cellData;
+  }
+
+  public static CellData generateCellData(String value, Color colour) {
+    CellData cellData = new CellData();
+    cellData.setUserEnteredValue(new ExtendedValue().setStringValue(value));
+    cellData.setUserEnteredFormat(new CellFormat().setBackgroundColor(colour));
+    return cellData;
+  }
+
 }
